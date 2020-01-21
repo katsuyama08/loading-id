@@ -22,9 +22,23 @@ NM := $(GCC_TARGET)-nm
 OBJCOPY := $(GCC_TARGET)-objcopy
 
 #
+#  TECSインタフェースジェネレータ関係の定義 (yamauchi)
+#
+GCC_TARGET_PREFIX = $(GCC_TARGET)-
+RUBY = /usr/bin/ruby
+RUBYLIB = $(KERNELDIR)/tecsgen/tecsgen
+TECSGEN_DIR = $(RUBYLIB)
+TECSGEN = $(RUBY) $(TECSGEN_DIR)/tecsgen.rb -L $(RUBYLIB) -k euc --cpp="$(GCC_TARGET_PREFIX)gcc -E"
+TECSLIB_DIR = $(KERNELDIR)/tecs_lib
+
+#
+#  TECSが生成する定義のインクルード (yamauchi)
+#
+-include $(KERNELDIR)/sdk/OBJ/gen/Makefile.tecsgen
+
+#
 # Process configuration files
 #
-
 CFG_TABS := --api-table $(LOADERDIR)/app/common/module_api.def \
 			--symval-table $(LOADERDIR)/app/common/module_def.csv $(CFG_TABS)
 
@@ -99,7 +113,17 @@ ifndef OMIT_OPTIMIZATION
   COPTS := $(COPTS) -O2
 endif
 CDEFS := $(CDEFS)
-INCLUDES += -I. -I$(KERNELDIR)/include -I$(KERNELDIR)/arch -I$(KERNELDIR) -I$(PWD)/include
+
+#
+#  共通コンパイルオプションの定義 (yamauchi)
+#
+INCLUDES := $(INCLUDES) -I. -I$(KERNELDIR)/include -I$(KERNELDIR)/arch -I$(KERNELDIR) -I$(PWD)/include \
+		-I$(KERNELDIR)/mruby \
+		-I$(KERNELDIR)/tecs_lib/mindstorms_ev3 -I$(KERNELDIR)/tecs_lib/mindstorms_ev3/balancer -I$(KERNELDIR)/tecs_lib/common \
+        -I$(TECSGEN_DIR)/tecs \
+	    -I$(TECSGEN_DIR)/tecs/mruby -I$(TECSGEN_DIR)/tecs/TLSFMalloc -I$(TECSGEN_DIR)/tecs/posix \
+        -I$(KERNELDIR)/sdk/OBJ -I$(KERNELDIR)/sdk/OBJ/gen
+
 LDFLAGS := $(LDFLAGS)
 CFG1_OUT_LDFLAGS := $(CFG1_OUT_LDFLAGS)
 LIBS := $(LIBS) $(CXXLIBS)
@@ -108,21 +132,36 @@ CFLAGS = $(COPTS) $(CDEFS) $(INCLUDES)
 #
 # Include source files
 #
-SRCDIRS += $(KERNELDIR)/library
+SRCDIRS += $(KERNELDIR)/library $(KERNELDIR)/include \
+		$(KERNELDIR)/sdk/common $(KERNELDIR)/sdk/OBJ/gen \
+		$(KERNELDIR)/tecs_lib/mindstorms_ev3 $(KERNELDIR)/tecs_lib/common \
+		$(KERNELDIR)/tecsgen/tecsgen/tecs/mruby \
+		$(TARGETDIR)
 vpath %.c $(SRCDIRS)
 vpath %.cpp $(SRCDIRS)
 
 #
 # Object file
 #
-ALL_OBJS += module_cfg.o $(MODOBJS)
+ALL_OBJS += module_cfg.o $(MODOBJS) $(TECS_COBJS)
 ALL_CXXOBJS += $(APPL_CXXOBJS)
 ALL_LIBS += $(LIBS) $(APPL_LIBS)
 $(OBJFILE): $(CFG_OUT_SRCS) $(ALL_OBJS) $(ALL_CXXOBJS) $(WORKSPACE_LIB_TO_BUILD)
 	$(call print_cmd, "LD", $@)
 	@$(LINK) $(LDFLAGS) -o $(OBJFILE) $(ALL_OBJS) $(ALL_CXXOBJS) $(ALL_LIBS) -lm -lc -lgcc
 #arm-none-eabi-strip -K _module_cfg_entry_num -K _module_cfg_tab -K _module_pil_version --strip-all app
-    
+
+#
+#  TECSインタフェースジェネレータの実行 (yamauchi)
+#
+tecs.timestamp: $(APPL_CDL) $(TECS_IMPORTS) Makefile
+		$(call print_cmd, "TECSGEN", $<)
+		$(TECSGEN) -R -D TECSGEN -D TECS_CPP -I$(TECSGEN_DIR)/tecslib/plugin $(INCLUDES) $(APPL_CDL)
+		touch tecs.timestamp
+
+.PHONY: tecs
+tecs: tecs.timestamp
+
 #
 # Function definitions
 #
