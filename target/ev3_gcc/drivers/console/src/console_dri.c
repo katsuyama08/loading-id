@@ -77,6 +77,12 @@ static int32_t  log_current_line = 0;                                 // Current
 static int32_t  log_current_column = 0;                               // Current column for output [Line end: log_current_column == LOG_LINE_WIDTH]
 static uint8_t* log_output_ptr = &log_buffer[CONSOLE_LOG_VIEW_LINES][0]; // Current pointer for output
 
+void lcd_clear(){
+  log_current_line = 0;                                 // Current line for output
+  log_current_column = 0;                               // Current column for output [Line end: log_current_column == LOG_LINE_WIDTH]
+  log_output_ptr = &log_buffer[CONSOLE_LOG_VIEW_LINES][0]; // Current pointer for output
+}
+
 // Must be called with EV3RT_CONSOLE_LOG_MTX
 static void log_put_char(char c) {
     *log_output_ptr++ = c;

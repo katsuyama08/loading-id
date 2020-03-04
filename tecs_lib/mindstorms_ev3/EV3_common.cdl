@@ -47,7 +47,17 @@ generate( MrubyBridgePlugin, sSharedMemory, "" );
  *  サンプルプログラムの定義
  */
 
-[domain(HRP, "user")]
+region rKernelDomain {
+	//LCD
+	cell tLCD LCD {
+		cButton = Button.eButton;
+	};
+	//Button
+	cell tButton Button {
+	};
+};
+
+[linkunit, domain(HRP, "user")]
 region rSample {
 	cell nMruby::tsKernel BridgeKernel {
 		cTECS = HRP3Kernel.eKernel;
@@ -67,7 +77,7 @@ region rSample {
 	};
 	// LCD ブリッジセル
 	cell nMruby::tsLCD BridgeLCD {
-		cTECS = LCD.eLCD;
+		cTECS = rKernelDomain::LCD.eLCD;
 	};
 	// LED ブリッジセル
 	cell nMruby::tsLED BridgeLED {
@@ -75,7 +85,7 @@ region rSample {
 	};
 	// Button ブリッジセル
 	cell nMruby::tsButton BridgeButton {
-		cTECS = Button.eButton;
+		cTECS = rKernelDomain::Button.eButton;
 	};
 	// Battery ブリッジセル
 	cell nMruby::tsBattery BridgeBattery {
@@ -163,15 +173,15 @@ region rSample {
 		port = C_EXP("EV3_PORT_D");
 	};
 	//LCD
-	cell tLCD LCD {
-		cButton = Button.eButton;
-	};
+	//cell tLCD LCD {
+	//	cButton = Button.eButton;
+	//};
 	//LED
 	cell tLED LED {
 	};
 	//Button
-	cell tButton Button {
-	};
+	//cell tButton Button {
+	//};
 	//Battery
 	cell tBattery Battery {
 	};

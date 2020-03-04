@@ -1,0 +1,19 @@
+C:\cygwin64\home\ertl\mruby+tecs\mruby\build\host\mrbgems\mruby-compiler\core\y.tab.o: \
+ /home/ertl/mruby+tecs/mruby/build/host/mrbgems/mruby-compiler/core/y.tab.c \
+ /home/ertl/mruby+tecs/mruby/include/mruby.h \
+ /home/ertl/mruby+tecs/mruby/include/mrbconf.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/common.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/value.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/common.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/object.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/boxing_no.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/gc.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/version.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/compile.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/proc.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/irep.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/khash.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/error.h \
+ /home/ertl/mruby+tecs/mruby/mrbgems/mruby-compiler/core/node.h \
+ /home/ertl/mruby+tecs/mruby/include/mruby/throw.h \
+ /home/ertl/mruby+tecs/mruby/mrbgems/mruby-compiler/core/lex.def

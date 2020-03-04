@@ -48,6 +48,13 @@
 import_C("tecs_kernel.h");
 
 /*
+ *  カーネルドメインのリージョン指定
+ */
+[linkunit, domain(HRP, "kernel")]
+region rKernelDomain {
+};
+
+/*
  *  タスク本体を呼び出すためのシグニチャ
  */
 signature sTaskBody {

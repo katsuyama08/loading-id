@@ -83,7 +83,7 @@ eKernel_delay(RELTIM delayTime)
  *  自タスクの終了
  */
 Inline ER
-eKernel_exit(void)
+eKernel_exitTask(void)
 {
 	return(ext_tsk());
 }
