@@ -7,7 +7,7 @@
 #              Graduate School of Engineering Science, Osaka Univ., JAPAN
 #  Copyright (C) 2015-2016 by Embedded and Real-Time Systems Laboratory
 #              Graduate School of Information Science, Nagoya Univ., JAPAN
-#  Copyright (C) 2015-2018 by TOPPERS Project
+#  Copyright (C) 2015-2020 by TOPPERS Project
 #
 #--
 #   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
@@ -39,8 +39,10 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 #  
-#  $Id: NotifierPlugin.rb 2952 2018-05-07 10:19:07Z okuma-top $
+#  $Id: NotifierPlugin.rb 3149 2020-05-17 05:37:58Z okuma-top $
 #++
+
+require_tecsgen_lib "lib/FMPClassManager.rb"
 
 NotifierPluginArgProc = {
 	"factory" => Proc.new { |obj, rhs| obj.set_factory(rhs) },
@@ -94,7 +96,9 @@ class NotifierPlugin < CelltypePlugin
 	#  - アダプタ関数へののポインタ
 	#  - アダプタ関数の引数
 	#
-	#   $Id: NotifierPlugin.rb 2952 2018-05-07 10:19:07Z okuma-top $
+	#   $Id: NotifierPlugin.rb 3149 2020-05-17 05:37:58Z okuma-top $
+
+	include FMPClassManager
 
 	# @private
 	class AdapterGenerator
@@ -1008,6 +1012,11 @@ class NotifierPlugin < CelltypePlugin
     indent    = ""
  
     	[EVENT_HANDLER, ERROR_HANDLER].each { |handler|
+        # ドメイン指定用文字列
+        pre_text  = ""
+        post_text = "\n"
+        indent    = ""
+ 
     		# 呼び口の結合を取得
     		call_join = cell.get_join_list.get_item(handler.call_port_name.to_sym)
         domain_root = cell.get_region.get_domain_root
@@ -1037,9 +1046,10 @@ class NotifierPlugin < CelltypePlugin
 
       # ドメインプラグインが指定されている場合、所属ドメインのチェック
       domain_root = cell.get_region.get_domain_root
-      if domain_root.get_domain_type then
-        if domain_root.get_domain_type.get_name == :HRP then
-          option = domain_root.get_domain_type.get_option
+	  domain_type = domain_root.get_domain_type
+	  if domain_type then
+        if domain_type.get_name == :HRP || domain_type.get_name == :HRMP then
+          option = domain_type.get_option
           matches.each{ |match|
             # p "match:#{match}"
             case match
@@ -1072,16 +1082,36 @@ class NotifierPlugin < CelltypePlugin
           if option == "kernel"
             pre_text  = "KERNEL_DOMAIN{\n"
             post_text = "}\n"
-            indent    =  "\t"
+            indent    =  "  "
           elsif option != "OutOfDomain" then
             pre_text  = "DOMAIN(#{domain_root.get_name.to_s}){\n"
             post_text = "}\n"
-            indent    =  "\t"
+            indent    =  "  "
           end
         else
           cdl_error( "NTF9999: NotifierPlugin: unknown domain type $1", domain_root.get_domain_type.get_name )
         end
 
+      end
+      class_root = cell.get_region.get_class_root
+      if class_root then
+        class_type = class_root.get_class_type
+        if class_type then
+          # p "class_type: #{class_type.get_name}"
+          if class_type.get_name == :FMP || class_type.get_name == :HRMP then
+            if class_type.get_option == "OutOfClass" then
+              cdl_error2( cell.get_locale, "FMP9999 $1: not be placed in class region", cell.get_name )
+            else
+              pre_text  += "#{indent}CLASS(#{convert_class_name(class_type.get_option)}){\n"
+              post_text =  "#{indent}}\n" + post_text
+              indent    +=  "  "
+            end
+          else
+            cdl_error( "NTF9999: NotifierPlugin: unknown class type $1", class_type.get_name )
+          end
+        end
+      else
+        raise "class root is nil"
       end
 
 			# 通知ハンドラで「エラーが発生するはずがない」のに「エラーハンドラが指定されている」
@@ -1184,8 +1214,18 @@ class NotifierPlugin < CelltypePlugin
        end
        id = cell.get_celltype.subst_name(id, name_array)
        # p obj_type
-       # p HRPPlugin.get_sac_str cell
-       file.print indent, "SAC_#{obj_type}( #{id}, #{HRPPlugin.get_sac_str cell} );\n"
+	   # p HRPPlugin.get_sac_str cell
+	   print "***  TEMPORAL FIX  HRPPlugin: domain_type=#{domain_root.get_domain_type.get_name}\n"
+	   domain_type_name = domain_root.get_domain_type.get_name.to_s
+	   if Object.const_defined?( domain_type_name + "DomainPlugin" ) then
+		plugin_name = domain_type_name + "DomainPlugin"
+	   elsif Object.const_defined?( domain_type_name + "Plugin" ) then
+		plugin_name = domain_type_name + "Plugin"
+	   else
+		raise "NotifierPlugin: Unkown Domain Plugin #{domain_type_name}"
+	   end
+	   plClass = Object.const_get plugin_name
+       file.print indent, "SAC_#{obj_type}( #{id}, #{plClass.get_sac_str cell} );\n"
      end
    end
    private :gen_factory_for_cell

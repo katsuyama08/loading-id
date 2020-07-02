@@ -1,4 +1,5 @@
-import(<kernel.cdl>);
+import(<include/kernel.cdl>);
+import(<include_lum/kernel.cdl>);
 
 /* mrubyの本体 */
 import(<tMruby.cdl>);
@@ -24,7 +25,7 @@ import(<tSharedMemory.cdl>);
 /*
  * シグニチャプラグイン MrubyBridgePlugin の呼び出し。
  */
-generate( MrubyBridgePlugin, sKernel, "" );
+generate( MrubyBridgePlugin, nLUM::sKernel, "" );
 
 generate( MrubyBridgePlugin, sMotor, "" );
 
@@ -46,7 +47,8 @@ generate( MrubyBridgePlugin, sSharedMemory, "" );
 /*
  *  サンプルプログラムの定義
  */
-
+//[linkunit, domain(HRP, "kernel")]
+[domain(HRP, "kernel")]
 region rKernelDomain {
 	//LCD
 	cell tLCD LCD {
@@ -57,10 +59,18 @@ region rKernelDomain {
 	};
 };
 
-[linkunit, domain(HRP, "user")]
+[domain(HRP, "user")]
+region TDOM_APP {
+};
+
+generate( HRPSVCBodyCellPlugin, ::rKernelDomain::LCD, "exportEntryPort=eLCD:TDOM_APP" );
+generate( HRPSVCBodyCellPlugin, ::rKernelDomain::Button, "exportEntryPort=eButton:TDOM_APP" );
+
+//[linkunit, domain(HRP, "user")]
+[node, to_through(rKernelDomain, HRPSVCThroughPlugin, "")]
 region rSample {
-	cell nMruby::tsKernel BridgeKernel {
-		cTECS = HRP3Kernel.eKernel;
+	cell nMruby::tnLUM_sKernel BridgeKernel {
+		cTECS = LUMKernel.eKernel;
 	};
 	// Motor ブリッジセル
 	cell nMruby::tsMotor BridgeMotorA {
@@ -157,7 +167,7 @@ region rSample {
 	};
 
 	//Kernel
-	cell tKernel HRP3Kernel {
+	cell nLUM::tKernel LUMKernel {
 	};
 	//Motor
 	cell tMotor MotorA {
@@ -172,16 +182,9 @@ region rSample {
 	cell tMotor MotorD {
 		port = C_EXP("EV3_PORT_D");
 	};
-	//LCD
-	//cell tLCD LCD {
-	//	cButton = Button.eButton;
-	//};
 	//LED
 	cell tLED LED {
 	};
-	//Button
-	//cell tButton Button {
-	//};
 	//Battery
 	cell tBattery Battery {
 	};
@@ -246,7 +249,7 @@ region rSample {
 	};
 	cell tEV3Platform EV3Platform {
 	};
-	cell tTask EV3Task {
+	cell nLUM::tTask EV3Task {
 		// 呼び口の結合
 		cBody = EV3Platform.eTaskBody;
 		//* 属性の設定

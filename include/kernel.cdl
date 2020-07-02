@@ -1,715 +1,927 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/HRP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
- *      Advanced Standard Profile Kernel
+ *      High Reliable system Profile Kernel
  * 
- *  Copyright (C) 2008-2009 by Embedded and Real-Time Systems Laboratory
+ *  Copyright (C) 2015,2016 by Ushio Laboratory
+ *              Graduate School of Engineering Science, Osaka Univ., JAPAN
+ *  Copyright (C) 2015-2018 by Embedded and Real-Time Systems Laboratory
  *              Graduate School of Information Science, Nagoya Univ., JAPAN
  * 
- *  ¾åµ­Ãøºî¸¢¼Ô¤Ï¡¤°Ê²¼¤Î(1)¢·(4)¤Î¾ò·ï¤òËş¤¿¤¹¾ì¹ç¤Ë¸Â¤ê¡¤ËÜ¥½¥Õ¥È¥¦¥§
- *  ¥¢¡ÊËÜ¥½¥Õ¥È¥¦¥§¥¢¤ò²şÊÑ¤·¤¿¤â¤Î¤ò´Ş¤à¡¥°Ê²¼Æ±¤¸¡Ë¤ò»ÈÍÑ¡¦Ê£À½¡¦²ş
- *  ÊÑ¡¦ºÆÇÛÉÛ¡Ê°Ê²¼¡¤ÍøÍÑ¤È¸Æ¤Ö¡Ë¤¹¤ë¤³¤È¤òÌµ½ş¤ÇµöÂú¤¹¤ë¡¥
- *  (1) ËÜ¥½¥Õ¥È¥¦¥§¥¢¤ò¥½¡¼¥¹¥³¡¼¥É¤Î·Á¤ÇÍøÍÑ¤¹¤ë¾ì¹ç¤Ë¤Ï¡¤¾åµ­¤ÎÃøºî
- *      ¸¢É½¼¨¡¤¤³¤ÎÍøÍÑ¾ò·ï¤ª¤è¤Ó²¼µ­¤ÎÌµÊİ¾Úµ¬Äê¤¬¡¤¤½¤Î¤Ş¤Ş¤Î·Á¤Ç¥½¡¼
- *      ¥¹¥³¡¼¥ÉÃæ¤Ë´Ş¤Ş¤ì¤Æ¤¤¤ë¤³¤È¡¥
- *  (2) ËÜ¥½¥Õ¥È¥¦¥§¥¢¤ò¡¤¥é¥¤¥Ö¥é¥ê·Á¼°¤Ê¤É¡¤Â¾¤Î¥½¥Õ¥È¥¦¥§¥¢³«È¯¤Ë»È
- *      ÍÑ¤Ç¤­¤ë·Á¤ÇºÆÇÛÉÛ¤¹¤ë¾ì¹ç¤Ë¤Ï¡¤ºÆÇÛÉÛ¤ËÈ¼¤¦¥É¥­¥å¥á¥ó¥È¡ÊÍøÍÑ
- *      ¼Ô¥Ş¥Ë¥å¥¢¥ë¤Ê¤É¡Ë¤Ë¡¤¾åµ­¤ÎÃøºî¸¢É½¼¨¡¤¤³¤ÎÍøÍÑ¾ò·ï¤ª¤è¤Ó²¼µ­
- *      ¤ÎÌµÊİ¾Úµ¬Äê¤ò·ÇºÜ¤¹¤ë¤³¤È¡¥
- *  (3) ËÜ¥½¥Õ¥È¥¦¥§¥¢¤ò¡¤µ¡´ï¤ËÁÈ¤ß¹ş¤à¤Ê¤É¡¤Â¾¤Î¥½¥Õ¥È¥¦¥§¥¢³«È¯¤Ë»È
- *      ÍÑ¤Ç¤­¤Ê¤¤·Á¤ÇºÆÇÛÉÛ¤¹¤ë¾ì¹ç¤Ë¤Ï¡¤¼¡¤Î¤¤¤º¤ì¤«¤Î¾ò·ï¤òËş¤¿¤¹¤³
- *      ¤È¡¥
- *    (a) ºÆÇÛÉÛ¤ËÈ¼¤¦¥É¥­¥å¥á¥ó¥È¡ÊÍøÍÑ¼Ô¥Ş¥Ë¥å¥¢¥ë¤Ê¤É¡Ë¤Ë¡¤¾åµ­¤ÎÃø
- *        ºî¸¢É½¼¨¡¤¤³¤ÎÍøÍÑ¾ò·ï¤ª¤è¤Ó²¼µ­¤ÎÌµÊİ¾Úµ¬Äê¤ò·ÇºÜ¤¹¤ë¤³¤È¡¥
- *    (b) ºÆÇÛÉÛ¤Î·ÁÂÖ¤ò¡¤ÊÌ¤ËÄê¤á¤ëÊıË¡¤Ë¤è¤Ã¤Æ¡¤TOPPERS¥×¥í¥¸¥§¥¯¥È¤Ë
- *        Êó¹ğ¤¹¤ë¤³¤È¡¥
- *  (4) ËÜ¥½¥Õ¥È¥¦¥§¥¢¤ÎÍøÍÑ¤Ë¤è¤êÄ¾ÀÜÅª¤Ş¤¿¤Ï´ÖÀÜÅª¤ËÀ¸¤¸¤ë¤¤¤«¤Ê¤ëÂ»
- *      ³²¤«¤é¤â¡¤¾åµ­Ãøºî¸¢¼Ô¤ª¤è¤ÓTOPPERS¥×¥í¥¸¥§¥¯¥È¤òÌÈÀÕ¤¹¤ë¤³¤È¡¥
- *      ¤Ş¤¿¡¤ËÜ¥½¥Õ¥È¥¦¥§¥¢¤Î¥æ¡¼¥¶¤Ş¤¿¤Ï¥¨¥ó¥É¥æ¡¼¥¶¤«¤é¤Î¤¤¤«¤Ê¤ëÍı
- *      Í³¤Ë´ğ¤Å¤¯ÀÁµá¤«¤é¤â¡¤¾åµ­Ãøºî¸¢¼Ô¤ª¤è¤ÓTOPPERS¥×¥í¥¸¥§¥¯¥È¤ò
- *      ÌÈÀÕ¤¹¤ë¤³¤È¡¥
+ *  ä¸Šè¨˜è‘—ä½œæ¨©è€…ã¯ï¼Œä»¥ä¸‹ã®(1)ã€œ(4)ã®æ¡ä»¶ã‚’æº€ãŸã™å ´åˆã«é™ã‚Šï¼Œæœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§
+ *  ã‚¢ï¼ˆæœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚’æ”¹å¤‰ã—ãŸã‚‚ã®ã‚’å«ã‚€ï¼ä»¥ä¸‹åŒã˜ï¼‰ã‚’ä½¿ç”¨ãƒ»è¤‡è£½ãƒ»æ”¹
+ *  å¤‰ãƒ»å†é…å¸ƒï¼ˆä»¥ä¸‹ï¼Œåˆ©ç”¨ã¨å‘¼ã¶ï¼‰ã™ã‚‹ã“ã¨ã‚’ç„¡å„Ÿã§è¨±è«¾ã™ã‚‹ï¼
+ *  (1) æœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚’ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰ã®å½¢ã§åˆ©ç”¨ã™ã‚‹å ´åˆã«ã¯ï¼Œä¸Šè¨˜ã®è‘—ä½œ
+ *      æ¨©è¡¨ç¤ºï¼Œã“ã®åˆ©ç”¨æ¡ä»¶ãŠã‚ˆã³ä¸‹è¨˜ã®ç„¡ä¿è¨¼è¦å®šãŒï¼Œãã®ã¾ã¾ã®å½¢ã§ã‚½ãƒ¼
+ *      ã‚¹ã‚³ãƒ¼ãƒ‰ä¸­ã«å«ã¾ã‚Œã¦ã„ã‚‹ã“ã¨ï¼
+ *  (2) æœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚’ï¼Œãƒ©ã‚¤ãƒ–ãƒ©ãƒªå½¢å¼ãªã©ï¼Œä»–ã®ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢é–‹ç™ºã«ä½¿
+ *      ç”¨ã§ãã‚‹å½¢ã§å†é…å¸ƒã™ã‚‹å ´åˆã«ã¯ï¼Œå†é…å¸ƒã«ä¼´ã†ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆï¼ˆåˆ©ç”¨
+ *      è€…ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ãªã©ï¼‰ã«ï¼Œä¸Šè¨˜ã®è‘—ä½œæ¨©è¡¨ç¤ºï¼Œã“ã®åˆ©ç”¨æ¡ä»¶ãŠã‚ˆã³ä¸‹è¨˜
+ *      ã®ç„¡ä¿è¨¼è¦å®šã‚’æ²è¼‰ã™ã‚‹ã“ã¨ï¼
+ *  (3) æœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚’ï¼Œæ©Ÿå™¨ã«çµ„ã¿è¾¼ã‚€ãªã©ï¼Œä»–ã®ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢é–‹ç™ºã«ä½¿
+ *      ç”¨ã§ããªã„å½¢ã§å†é…å¸ƒã™ã‚‹å ´åˆã«ã¯ï¼Œæ¬¡ã®ã„ãšã‚Œã‹ã®æ¡ä»¶ã‚’æº€ãŸã™ã“
+ *      ã¨ï¼
+ *    (a) å†é…å¸ƒã«ä¼´ã†ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆï¼ˆåˆ©ç”¨è€…ãƒãƒ‹ãƒ¥ã‚¢ãƒ«ãªã©ï¼‰ã«ï¼Œä¸Šè¨˜ã®è‘—
+ *        ä½œæ¨©è¡¨ç¤ºï¼Œã“ã®åˆ©ç”¨æ¡ä»¶ãŠã‚ˆã³ä¸‹è¨˜ã®ç„¡ä¿è¨¼è¦å®šã‚’æ²è¼‰ã™ã‚‹ã“ã¨ï¼
+ *    (b) å†é…å¸ƒã®å½¢æ…‹ã‚’ï¼Œåˆ¥ã«å®šã‚ã‚‹æ–¹æ³•ã«ã‚ˆã£ã¦ï¼ŒTOPPERSãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã«
+ *        å ±å‘Šã™ã‚‹ã“ã¨ï¼
+ *  (4) æœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã®åˆ©ç”¨ã«ã‚ˆã‚Šç›´æ¥çš„ã¾ãŸã¯é–“æ¥çš„ã«ç”Ÿã˜ã‚‹ã„ã‹ãªã‚‹æ
+ *      å®³ã‹ã‚‰ã‚‚ï¼Œä¸Šè¨˜è‘—ä½œæ¨©è€…ãŠã‚ˆã³TOPPERSãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã‚’å…è²¬ã™ã‚‹ã“ã¨ï¼
+ *      ã¾ãŸï¼Œæœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã®ãƒ¦ãƒ¼ã‚¶ã¾ãŸã¯ã‚¨ãƒ³ãƒ‰ãƒ¦ãƒ¼ã‚¶ã‹ã‚‰ã®ã„ã‹ãªã‚‹ç†
+ *      ç”±ã«åŸºã¥ãè«‹æ±‚ã‹ã‚‰ã‚‚ï¼Œä¸Šè¨˜è‘—ä½œæ¨©è€…ãŠã‚ˆã³TOPPERSãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã‚’
+ *      å…è²¬ã™ã‚‹ã“ã¨ï¼
  * 
- *  ËÜ¥½¥Õ¥È¥¦¥§¥¢¤Ï¡¤ÌµÊİ¾Ú¤ÇÄó¶¡¤µ¤ì¤Æ¤¤¤ë¤â¤Î¤Ç¤¢¤ë¡¥¾åµ­Ãøºî¸¢¼Ô¤ª
- *  ¤è¤ÓTOPPERS¥×¥í¥¸¥§¥¯¥È¤Ï¡¤ËÜ¥½¥Õ¥È¥¦¥§¥¢¤Ë´Ø¤·¤Æ¡¤ÆÃÄê¤Î»ÈÍÑÌÜÅª
- *  ¤ËÂĞ¤¹¤ëÅ¬¹çÀ­¤â´Ş¤á¤Æ¡¤¤¤¤«¤Ê¤ëÊİ¾Ú¤â¹Ô¤ï¤Ê¤¤¡¥¤Ş¤¿¡¤ËÜ¥½¥Õ¥È¥¦¥§
- *  ¥¢¤ÎÍøÍÑ¤Ë¤è¤êÄ¾ÀÜÅª¤Ş¤¿¤Ï´ÖÀÜÅª¤ËÀ¸¤¸¤¿¤¤¤«¤Ê¤ëÂ»³²¤Ë´Ø¤·¤Æ¤â¡¤¤½
- *  ¤ÎÀÕÇ¤¤òÉé¤ï¤Ê¤¤¡¥
+ *  æœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã¯ï¼Œç„¡ä¿è¨¼ã§æä¾›ã•ã‚Œã¦ã„ã‚‹ã‚‚ã®ã§ã‚ã‚‹ï¼ä¸Šè¨˜è‘—ä½œæ¨©è€…ãŠ
+ *  ã‚ˆã³TOPPERSãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã¯ï¼Œæœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã«é–¢ã—ã¦ï¼Œç‰¹å®šã®ä½¿ç”¨ç›®çš„
+ *  ã«å¯¾ã™ã‚‹é©åˆæ€§ã‚‚å«ã‚ã¦ï¼Œã„ã‹ãªã‚‹ä¿è¨¼ã‚‚è¡Œã‚ãªã„ï¼ã¾ãŸï¼Œæœ¬ã‚½ãƒ•ãƒˆã‚¦ã‚§
+ *  ã‚¢ã®åˆ©ç”¨ã«ã‚ˆã‚Šç›´æ¥çš„ã¾ãŸã¯é–“æ¥çš„ã«ç”Ÿã˜ãŸã„ã‹ãªã‚‹æå®³ã«é–¢ã—ã¦ã‚‚ï¼Œã
+ *  ã®è²¬ä»»ã‚’è² ã‚ãªã„ï¼
  * 
- *  @(#) $Id: kernel.cdl 945 2010-06-04 05:02:10Z ritsumei-takuya $
+ *  $Id: kernel.cdl 285 2018-03-21 02:55:49Z ertl-hiro $
  */
 
 /*
- *		TOPPERS/ASP¥«¡¼¥Í¥ë ¥³¥ó¥İ¡¼¥Í¥ó¥Èµ­½Ò¥Õ¥¡¥¤¥ë
+ *		TOPPERS/HRPã‚«ãƒ¼ãƒãƒ«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¨˜è¿°ãƒ•ã‚¡ã‚¤ãƒ«
  */
 
 /*
- *  ¥«¡¼¥Í¥ë¤Î¥¤¥ó¥¯¥ë¡¼¥É¥Õ¥¡¥¤¥ë
+ *  ã‚«ãƒ¼ãƒãƒ«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆåŒ–ã®ãŸã‚ã®ãƒ˜ãƒƒãƒ€ãƒ•ã‚¡ã‚¤ãƒ«
  */
 import_C("tecs_kernel.h");
 
 /*
- *  ¥«¡¼¥Í¥ë¥É¥á¥¤¥ó¤Î¥ê¡¼¥¸¥ç¥ó»ØÄê
- */
-[linkunit, domain(HRP, "kernel")]
-region rKernelDomain {
-};
-
-/*
- *  ¥¿¥¹¥¯ËÜÂÎ¤ò¸Æ¤Ó½Ğ¤¹¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã
- */
-signature sTaskBody {
-	void	main(void);
-};
-
-/*
- *  ¥¿¥¹¥¯¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sTask {
-	ER		activate(void);
-	ER_UINT	cancelActivate(void);
-	ER		terminate(void);
-	ER		changePriority([in] PRI priority);
-	ER		getPriority([out] PRI *p_priority);
-	ER		refer([out] T_RTSK *pk_taskStatus);
-
-	ER		wakeup(void);
-	ER_UINT cancelWakeup(void);
-	ER		releaseWait(void);
-	ER		suspend(void);
-	ER		resume(void);
-};
-
-/*
- *  ¥¿¥¹¥¯¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siTask {
-	ER 		activate(void);
-	ER		wakeup(void);
-	ER		releaseWait(void);
-};
-/*
- *  ¥¿¥¹¥¯
- */
-[active]
-celltype tTask {
-	[inline]   entry	sTask	eTask;	/* ¥¿¥¹¥¯Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline]   entry	siTask	eiTask;	/* ¥¿¥¹¥¯Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-          	   call	sTaskBody	cBody;  /* ¥¿¥¹¥¯ËÜÂÎ */
-	attr{
-		ID				*id = C_EXP("&_module_id_TSKID_$id$");
-		/*
-		 *  TA_NULL     0x00U   ¥Ç¥Õ¥©¥ë¥ÈÃÍ
-		 * 	TA_ACT		0x01U	¥¿¥¹¥¯¤ÎÀ¸À®»ş¤Ë¥¿¥¹¥¯¤òµ¯Æ°¤¹¤ë
-		 */
-		[omit] ATR		taskAttribute = C_EXP("TA_NULL");
-		[omit] PRI		priority;
-		[omit] size_t		stackSize;
-	};
-
-	factory {
-		write("tecsgen.cfg",
-			"DOMAIN(TDOM_APP) {");
-
-		write("tecsgen.cfg",
-			"CRE_TSK(TSKID_$id$, { %s, (intptr_t) $cbp$, tTask_start, %s, %s, NULL });",
-			taskAttribute, priority, stackSize);
-
-		write("tecsgen.cfg",
-			"}");
-	};
-	FACTORY {
-		/*
-         * cfg¤Ç¤ÎwarningÍŞÀ©¤Î¤¿¤á¤Î¥³¡¼¥É
-		 */
-		write("tecsgen.cfg", "#include \"cb_type_only.h\"");
-		write("cb_type_only.h", "#ifndef  TOPPERS_CB_TYPE_ONLY");
-		write("cb_type_only.h", "#define  TOPPERS_CB_TYPE_ONLY");
-		write("cb_type_only.h", "#endif   /*TOPPERS_CB_TYPE_ONLY*/");
-		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
-		write("$ct$_factory.h", "#include \"module_cfg.h\"");
-	};
-};
-
-/*
- *  ½é´ü²½½èÍı¥ë¡¼¥Á¥óËÜÂÎ¤ò¸Æ¤Ó½Ğ¤¹¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã
- */
-signature sInitializeRoutineBody {
-	void	main(void);
-};
-
-/*
- *  ½é´ü²½½èÍı¥ë¡¼¥Á¥ó
- */
-[active]
-celltype tInitializeRoutine {
-	call	sInitializeRoutineBody	cInitializeRoutine;
-	
-	attr {
-		/*
-		 * ½é´ü²½½èÍı¥ë¡¼¥Á¥ó¤Ë»ØÄê¤Ç¤­¤ëÂ°À­¤Ï¤Ê¤¤¤¿¤á
-		 * TA_NULL¤ò»ØÄê¤¹¤ë
-		 */
-		[omit] ATR	attribute = C_EXP("TA_NULL");
-	};
-
-	factory {
-		write("tecsgen.cfg",
-			"ATT_INI({ %s, $cbp$, tInitializeRoutine_start });",
-			attribute);
-	};
-	FACTORY {
-		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
-	};
-};
-
-/*
- *  ½ªÎ»½èÍı¥ë¡¼¥Á¥óËÜÂÎ¤ò¸Æ¤Ó½Ğ¤¹¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã
- */
-signature sTerminateRoutineBody {
-	void	main(void);
-};
-
-/*
- *  ½ªÎ»½èÍı¥ë¡¼¥Á¥ó
- */
-[active]
-celltype tTerminateRoutine {
-	call	sTerminateRoutineBody	cTerminateRoutine;
-
-	attr {
-		/*
-		 * ½ªÎ»½èÍı¥ë¡¼¥Á¥ó¤Ë»ØÄê¤Ç¤­¤ëÂ°À­¤Ï¤Ê¤¤¤¿¤á
-		 * TA_NULL¤ò»ØÄê¤¹¤ë
-		 */
-		[omit] ATR	attribute = C_EXP("TA_NULL");
-	};
-
-	factory {
-		write("tecsgen.cfg",
-			"ATT_TER({ %s, $cbp$, tTerminateRoutine_start });",
-			attribute);
-	};
-	FACTORY {
-		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
-	};
-};
-
-
-/*
- *  ¥Ï¥ó¥É¥é¤ò¸Æ¤Ó½Ğ¤¹¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã
- */
-[context("non-task")]
-signature siHandlerBody {
-	void   main(void);
-};
-
-/*
- *  ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥ó
- */
-[active]
-celltype tISR{
-	call  siHandlerBody  ciBody;     /* ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥óËÜÂÎ*/
-
-	attr {
-		/*
-		 * ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥ó¤Ë»ØÄê¤Ç¤­¤ëÂ°À­¤Ï¤Ê¤¤¤¿¤á
-		 * TA_NULL¤ò»ØÄê¤¹¤ë
-		 */
-		[omit] ATR   attribute = C_EXP( "TA_NULL" );
-		[omit] INTNO interruptNumber;
-		[omit] PRI   priority = 1;
-	};
-
-	factory{
-		write("tecsgen.cfg", "ATT_ISR({ %s, $cbp$, %s, tISR_start, %s });",
-			  attribute, interruptNumber, priority);
-	};
-	FACTORY{
-		write( "tecsgen.cfg", "#include \"$ct$_tecsgen.h\"" );
-		write( "$ct$_factory.h", "#include \"module_cfg.h\"" );
-	};
-
-};
-
-
-signature sConfigInterrupt{
-	ER 		disable(void);
-	ER 		enable(void);
-};
-
-/*
- *  ³ä¹ş¤ßÍ×µá¥é¥¤¥ó 
- */
-celltype tConfigInterrupt {
-	[inline] entry sConfigInterrupt eConfigInterrupt;
-
-	attr {
-		INTNO interruptNumber;
-		[omit] ATR   attribute =  C_EXP( "TA_NULL" );
-		[omit] PRI   interruptPriority;
-	};
-
-	factory{
-		write("tecsgen.cfg", "CFG_INT( %s,{ %s, %s});",
-			  interruptNumber, attribute, interruptPriority);
-	};
-};
-
-/*
- *  ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥ó¤È³ä¹ş¤ßÍ×µá¥é¥¤¥ó¤ÎÊ£¹ç¥»¥ë¥¿¥¤¥×
- */
-[active]
-composite tISRWithConfigInterrupt{
-	entry sConfigInterrupt eConfigInterrupt;
-	call  siHandlerBody  ciBody;     /* ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥óËÜÂÎ */
-
-	attr {
-		/* ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥ó */
-		ATR   isrAttribute = C_EXP( "TA_NULL" );
-		PRI   isrPriority = 1;
-		INTNO interruptNumber;
-
-		/* ³ä¹ş¤ßÍ×µá¥é¥¤¥ó */ 
-		ATR   interruptAttribute =  C_EXP( "TA_NULL" );
-		PRI   interruptPriority;
-	};
-	/* ³ä¹ş¤ß¥µ¡¼¥Ó¥¹¥ë¡¼¥Á¥ó */
-	cell tISR ISRMain{
-		attribute = composite.isrAttribute;
-		priority  = composite.isrPriority;
-		interruptNumber = composite.interruptNumber;
-		ciBody => composite.ciBody;
-	};
-	/* ³ä¹ş¤ßÍ×µá¥é¥¤¥ó */ 
-	cell tConfigInterrupt ConfigInterrupt{
-		interruptNumber = composite.interruptNumber;
-		attribute = composite.interruptAttribute;
-		interruptPriority = composite.interruptPriority;
-	};
-	composite.eConfigInterrupt => ConfigInterrupt.eConfigInterrupt;
-};
-
-/*
- *  ¼ş´ü¥Ï¥ó¥É¥é¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sCyclic{
-	ER 		start(void);
-	ER 		stop(void);
-	ER 		refer([out]T_RCYC *pk_cyclicHandlerStatus);
-};
-/*
- *  ¼ş´ü¥Ï¥ó¥É¥é
- */
-[active]
-celltype tCyclicHandler {
-	[inline] entry sCyclic   eCyclic;/* ¼ş´ü¥Ï¥ó¥É¥é¤ÎÁàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	call  siHandlerBody  ciBody;     /* ¼ş´ü¥Ï¥ó¥É¥éËÜÂÎ */
-
-	attr {
-		ID     id = C_EXP( "CYCHDLRID_$id$" );
-		/*
-		 *  TA_NULL     0x00U   ¥Ç¥Õ¥©¥ë¥ÈÃÍ
-		 * 	TA_STA 		0x01U   ¼ş´ü¥Ï¥ó¥É¥é¤¬Æ°ºî¤·¤Æ¤¤¤ë¾õÂÖ
-		 */
-		[omit] ATR    attribute = C_EXP("TA_NULL");
-		[omit] RELTIM cyclicTime;
-		[omit] RELTIM cyclicPhase = 0;
-	};
-
-	factory{
-		write( "tecsgen.cfg",
-			   "CRE_CYC( %s, { %s, $cbp$, tCyclicHandler_start, %s, %s } );",
-			   id, attribute, cyclicTime, cyclicPhase);
-	};
-	FACTORY{
-		write( "tecsgen.cfg", "#include \"$ct$_tecsgen.h\"" );
-		write( "$ct$_factory.h", "#include \"module_cfg.h\"" );
-	};
-};
-
-/*
- * ¥¿¥¹¥¯¤òµ¯¤³¤¹¼ş´ü¥Ï¥ó¥É¥é¤Î½èÍı¤ÎËÜÂÎ
- */
-celltype tCyclicTaskActivator{
-	entry siHandlerBody eiBody;
-	call  siTask        ciTask;
-};
-
-/*
- *  ¼ş´ü¥¿¥¹¥¯
- */
-[active]
-composite tCyclicTask {
-               entry sCyclic   eCyclic;/* ¼ş´ü¥Ï¥ó¥É¥é¤ÎÁàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-               entry	sTask	eTask;	/* ¥¿¥¹¥¯Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	           entry	siTask	eiTask;	/* ¥¿¥¹¥¯Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	           call	sTaskBody	cBody;  /* ¥¿¥¹¥¯ËÜÂÎ */
-	attr {
-		/*
-		 *  TA_NULL     0x00U   ¥Ç¥Õ¥©¥ë¥ÈÃÍ
-		 * 	TA_STA 		0x01U   ¼ş´ü¥Ï¥ó¥É¥é¤¬Æ°ºî¤·¤Æ¤¤¤ë¾õÂÖ
-		 */
-		ATR    cyclicAttribute = C_EXP("TA_NULL");
-		RELTIM cyclicTime;
-		RELTIM cyclicPhase = 0;
-		PRI		priority;
-		size_t	stackSize;
-	};
-	cell tTask Task{
-		/*
-         * µ¯Æ°»ş¤Ë¼ş´ü¥¿¥¹¥¯¤òµ¯Æ°¤·¤¿¤¤¾ì¹ç¤Ï
-         * ¥»¥ëÀ¸À®»ş¤Ë
-		 * cyclicAttribute = C_EXP("TA_STA");¤òµ­½Ò¤¹¤ë
-		 */
-		taskAttribute      = C_EXP("TA_NULL");
-		priority           = composite.priority;
-		stackSize          = composite.stackSize;
-
-		cBody => composite.cBody;
-	};
-	cell tCyclicTaskActivator CyclicMain{
-		ciTask = Task.eiTask;
-	};
-	cell tCyclicHandler CyclicHandler{
-		ciBody = CyclicMain.eiBody;
-		attribute = composite.cyclicAttribute;
-		cyclicTime   = composite.cyclicTime;
-		cyclicPhase  = composite.cyclicPhase;
-	};
-	composite.eTask   => Task.eTask;
-	composite.eiTask  => Task.eiTask;
-	composite.eCyclic => CyclicHandler.eCyclic;
-};
-
-/*
- *  ¥¢¥é¡¼¥à¥Ï¥ó¥É¥é¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sAlarm{
-	ER 		start([in] RELTIM alarmTime);
-	ER 		stop(void);
-    ER 		refer([out]T_RALM *pk_alarmStatus);
-};
-/*
- *  ¥¢¥é¡¼¥à¥Ï¥ó¥É¥é¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siAlarm{
-	ER 		start([in] RELTIM alarmTime);
-	ER 		stop(void);
-};
-/*
- *  ¥¢¥é¡¼¥à¥Ï¥ó¥É¥é
- */
-[active]
-celltype tAlarmHandler {
-	[inline] entry sAlarm eAlarm;  /* ¥¢¥é¡¼¥à¥Ï¥ó¥É¥éÁàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline] entry siAlarm eiAlarm;/* ¥¢¥é¡¼¥à¥Ï¥ó¥É¥éÁàºî ¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	call  siHandlerBody  ciBody;   /* ¥¢¥é¡¼¥à¥Ï¥ó¥É¥éËÜÂÎ */
-
-	attr {
-		ID     id = C_EXP( "ALMHDLRID_$id$" );
-		/*
-		 * ¥¢¥é¡¼¥à¥Ï¥ó¥É¥é¤Ë»ØÄê¤Ç¤­¤ëÂ°À­¤Ï¤Ê¤¤¤¿¤á
-		 * TA_NULL¤ò»ØÄê¤¹¤ë
-		 */
-		[omit] ATR attribute = C_EXP("TA_NULL");
-	};
-
-	factory{
-		write( "tecsgen.cfg",
-			   "CRE_ALM(%s, { %s, $cbp$, tAlarmHandler_start});",
-			   id, attribute );
-	};
-	FACTORY{
-		write( "tecsgen.cfg", "#include \"$ct$_tecsgen.h\"" );
-		write( "$ct$_factory.h", "#include \"module_cfg.h\"" );
-	};
-};
-/*
- * ¥»¥Ş¥Õ¥©¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sSemaphore{
-	ER 		signal(void);
-	ER 		wait(void);
-	ER 		waitPolling(void);
-	ER 		waitTimeout([in] TMO timeout);
-	ER 		initialize(void);
-	ER 		refer([out] T_RSEM *pk_semaphoreStatus);
-};
-/*
- *  ¥»¥Ş¥Õ¥©¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siSemaphore {
-	ER 		signal(void);
-};
-/*
- * ¥»¥Ş¥Õ¥©¤Î¥»¥ë¥¿¥¤¥×ÄêµÁ
- */
-celltype tSemaphore{
-	[inline] entry  sSemaphore   eSemaphore; /* ¥»¥Ş¥Õ¥©Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline] entry  siSemaphore  eiSemaphore;/* ¥»¥Ş¥Õ¥©Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	
-	attr {
-		ID      id = C_EXP( "SEMID_$id$" );
-		[omit]  ATR attribute;
-		[omit]  uint32_t count;
-		[omit]  uint32_t max =1;
-	};
-
-	factory {
-		write( "tecsgen.cfg", "CRE_SEM(%s, { %s, %s, %s });", id, attribute, count, max);
-	};
-	FACTORY{
-		write( "$ct$_factory.h","#include \"module_cfg.h\"" );
-	};
-};
-
-/*
- *  ¥¤¥Ù¥ó¥È¥Õ¥é¥°¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sEventflag{
-	ER set([in] FLGPTN setPattern);
-	ER clear([in] FLGPTN clearPattern);
-	ER wait([in] FLGPTN waitPattern, [in] MODE waitFlagMode, [out] FLGPTN *p_flagPattern);
-	ER waitPolling([in] FLGPTN waitPattern, [in] MODE waitFlagMode, [out] FLGPTN *p_flagPattern);
-	ER waitTimeout([in] FLGPTN waitPattern, [in] MODE waitFlagMode, [out] FLGPTN *p_flagPattern, [in] TMO timeout);
-
-	ER initialize(void);
-	ER refer([out]T_RFLG *pk_eventflagStatus);
-};
-/*
- *  ¥¤¥Ù¥ó¥È¥Õ¥é¥°¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siEventflag {
-	ER set([in] FLGPTN setPattern);
-};
-/*
- *  ¥¤¥Ù¥ó¥È¥Õ¥é¥°
- */
-celltype tEventflag{
-	[inline] entry  sEventflag   eEventflag; /* ¥¤¥Ù¥ó¥È¥Õ¥é¥°Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline] entry  siEventflag  eiEventflag;/* ¥¤¥Ù¥ó¥È¥Õ¥é¥°Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	
-	attr {
-		ID      id = C_EXP( "FLGID_$id$" );
-		/*
-		 * TA_NULL ¥Ç¥Õ¥©¥ë¥ÈÃÍ¡ÊFIFOÂÔ¤Á¡Ë
-         * TA_TPRI ÂÔ¤Á¹ÔÎó¤ò¥¿¥¹¥¯¤ÎÍ¥ÀèÅÙ½ç¤Ë¤¹¤ë
-         * TA_WMUL Ê£¿ô¤Î¥¿¥¹¥¯¤¬ÂÔ¤Ä¤Î¤òµö¤¹
-         * TA_CLR  ¥¿¥¹¥¯¤ÎÂÔ¤Á²ò½ü»ş¤Ë¥¤¥Ù¥ó¥È¥Õ¥é¥°¤ò¥¯¥ê¥¢¤¹¤ë
-		 */
-		[omit]  ATR attribute = C_EXP("TA_NULL");
-		/*
-		 * ¥¤¥Ù¥ó¥È¥Õ¥é¥°¤Î¥Ó¥Ã¥È¥Ñ¥¿¡¼¥ó¤Î½é´üÃÍ
-		 */
-		[omit]  FLGPTN flagPattern;
-	};
-
-	factory {
-		write( "tecsgen.cfg", "CRE_FLG(%s, { %s, %s});", id, attribute, flagPattern);
-	};
-	FACTORY{
-		write( "$ct$_factory.h", "#include \"module_cfg.h\"" );
-	};
-};
-
-/*
- *  ¥Ç¡¼¥¿¥­¥å¡¼¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sDataqueue {
-	/*¥Ç¡¼¥¿¥­¥å¡¼¤ÎÁ÷¿®*/
-	ER 		send([in] intptr_t data);
-	ER 		sendPolling([in] intptr_t data);
-	ER 		sendTimeout([in] intptr_t data, [in]TMO timeout);
-	ER 		sendForce([in] intptr_t data);
-	/*¥Ç¡¼¥¿¥­¥å¡¼¤Î¼õ¿®*/
-	ER 		receive([out] intptr_t *p_data);
-	ER 		receivePolling([out] intptr_t *p_Data);
-	ER 		receiveTimeout([out] intptr_t *p_data, [in]TMO timeout);
-	
-	ER 		initialize(void);
-	ER 		refer([out] T_RDTQ *pk_dataqueueStatus);
-};
-/*
- *  ¥Ç¡¼¥¿¥­¥å¡¼¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siDataqueue {
-	ER 		sendPolling([in] intptr_t data); 
-	ER 		sendForce([in] intptr_t data);
-};
-/*
- *  ¥Ç¡¼¥¿¥­¥å¡¼
- */
-celltype tDataqueue {
-	[inline] entry  sDataqueue   eDataqueue; /* ¥Ç¡¼¥¿¥­¥å¡¼Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline] entry  siDataqueue  eiDataqueue;/* ¥Ç¡¼¥¿¥­¥å¡¼Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	
-	attr {
-		ID      id = C_EXP( "DTQID_$id$" );
-		/*
-		 * TA_NULL ¥Ç¥Õ¥©¥ë¥ÈÃÍ¡ÊFIFO½ç¡Ë
-		 * TA_TPRI Á÷¿®ÂÔ¤Á¹ÔÎó¤ò¥¿¥¹¥¯¤ÎÍ¥ÀèÅÙ½ç¤Ë¤¹¤ë
-		 */
-		[omit] ATR     attribute = C_EXP( "TA_NULL" );
-		[omit] uint_t  count = 1;
-		[omit] void    *pdqmb = C_EXP( "NULL" );
-	};
-
-	factory {
-		write( "tecsgen.cfg", "CRE_DTQ( %s, { %s, %s, %s } );", id, attribute, count, pdqmb);
-	};
-	FACTORY{
-		write( "$ct$_factory.h","#include \"module_cfg.h\"" );
-	};
-};
-
-
-/*
- *  Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-signature sPriorityDataqueue {
-	/*Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤ÎÁ÷¿®*/
-	ER 		send([in] intptr_t data, [in]PRI dataPriority);
-	ER 		sendPolling([in] intptr_t data, [in]PRI dataPriority);
-	ER 		sendTimeout([in] intptr_t data, [in]PRI dataPriority, [in]TMO timeout);
-	/*Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤Î¼õ¿®*/
-	ER 		receive([out] intptr_t *p_data, [out]PRI *p_dataPriority);
-	ER 		receivePolling([out] intptr_t *p_data, [out]PRI *p_dataPriority);
- 	ER 		receiveTimeout([out] intptr_t *p_data, [out]PRI *p_dataPriority,[in]TMO timeout);
-
-	ER 		initialize(void);
-	ER 		refer([out] T_RPDQ *pk_priorityDataqueueStatus);
-};
-/*
- *  Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[context("non-task")]
-signature siPriorityDataqueue{
-	ER 		sendPolling([in]intptr_t data, [in]PRI dataPriority);
-};
-/*
- *  Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼
- */
-celltype tPriorityDataqueue {
-	[inline] entry  sPriorityDataqueue ePriorityDataqueue;  /* Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼Áàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	[inline] entry  siPriorityDataqueue eiPriorityDataqueue;/* Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼Áàºî¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	
-	attr {
-		ID      id = C_EXP( "PDTQID_$id$" );
-		/*
-		 * TA_NULL ¥Ç¥Õ¥©¥ë¥ÈÃÍ¡ÊFIFO½ç¡Ë
-		 * TA_TPRI Á÷¿®ÂÔ¤Á¹ÔÎó¤ò¥¿¥¹¥¯¤ÎÍ¥ÀèÅÙ½ç¤Ë¤¹¤ë
-		 */
-		[omit] ATR     attribute = C_EXP( "TA_NULL" );
-		[omit] uint_t  count = 1;       /* Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤ÎÍÆÎÌ */
-		[omit] PRI     maxDataPriority; /* Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼¤ËÁ÷¿®¤Ç¤­¤ë¥Ç¡¼¥¿Í¥ÀèÅÙ¤ÎºÇÂçÃÍ */
-		[omit] void    *pdqmb = C_EXP( "NULL" );/* Í¥ÀèÅÙ¥Ç¡¼¥¿¥­¥å¡¼´ÉÍıÎÎ°è¤ÎÀèÆ¬ÈÖÃÏ */
-	};
-
-	factory {
-		write( "tecsgen.cfg", "CRE_PDQ( %s, { %s, %s, %s, %s} );",
-			   id, attribute, count, maxDataPriority, pdqmb);
-	};
-	FACTORY{
-		write( "$ct$_factory.h","#include \"module_cfg.h\"" );
-	};
-};
-
-/*
- *  ¸ÇÄêÄ¹¥á¥â¥ê¥á¥â¥ê¥×¡¼¥ë¤òÁàºî¤¹¤ë¤¿¤á¤Î¥·¥°¥Ë¥Á¥ã¡ÊÈó¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë
- */
-[deviate]
-signature sFixedSizeMemoryPool{
-	ER 		get([out] void **p_block);
-	ER 		getPolling([out] void **p_block);
-	ER 		getTimeout([out] void **p_block, [in] TMO timeout);
-	ER 		release([in] const void *block);
-	ER 		initialize(void);
-	ER 		refer([out]T_RMPF *pk_memoryPoolFixedSizeStatus);
-};
-/*
- *  ¸ÇÄêÄ¹¥á¥â¥ê¥×¡¼¥ë
- */
-celltype tFixedSizeMemoryPool{
-	[inline] entry sFixedSizeMemoryPool eFixedSizeMemoryPool;/* ¸ÇÄêÄ¹¥á¥â¥ê¥×¡¼¥ëÁàºî¡Ê¥¿¥¹¥¯¥³¥ó¥Æ¥­¥¹¥ÈÍÑ¡Ë*/
-	
-	attr {
-		ID id = C_EXP( "MPFID_$id$" );
-		/*
- 		 * TA_NULL ¥Ç¥Õ¥©¥ë¥ÈÃÍ¡ÊFIFOÂÔ¤Á¡Ë 
-		 * TA_TPRI ÂÔ¤Á¹ÔÎó¤ò¥¿¥¹¥¯¤ÎÍ¥ÀèÅÙ½ç¤Ë¤¹¤ë 
-		 */
-		[omit] ATR attribute = C_EXP("TA_NULL");
-		[omit] uint32_t blockCount;
-		[omit] uint32_t blockSize;
-		[omit] MPF_T *mpf = C_EXP("NULL");
-		/*¸ÇÄêÄ¹¥á¥â¥ê¥×¡¼¥ë´ÉÍıÎÎ°è¤ÎÀèÆ¬ÈÖÃÏ*/
-		[omit] void *mpfmb = C_EXP("NULL");
-	};
-
-	factory {
-		write("tecsgen.cfg","CRE_MPF( %s, {%s, %s, %s, %s, %s} );",
-			  id, attribute, blockCount, blockSize, mpf, mpfmb);
-	};
-	FACTORY{
-		write( "$ct$_factory.h", "#include \"module_cfg.h\"" );
-	};
-};
-
-[context("task")]
-signature sKernel{
+*  ã‚«ãƒ¼ãƒãƒ«æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sKernel {
+	ER		getExtendedInformation([out] intptr_t *p_exinf);
 
 	ER		sleep(void);
 	ER		sleepTimeout([in] TMO timeout);
 	ER		delay([in] RELTIM delayTime);
 
-	ER		exitTask(void);
-	ER		getTaskId([out]ID *p_taskId);
+	ER		exit(void);
+	ER		disableTerminate(void);
+	ER		enableTerminate(void);
+	bool_t	senseTerminate(void);
+
+	ER		setTime([in] SYSTIM systemTime);
+	ER		getTime([out] SYSTIM *p_systemTime);
+	ER		adjustTime([in] int32_t adjustTime);
+	HRTCNT	fetchHighResolutionTimer(void);
 
 	ER		rotateReadyQueue([in] PRI taskPriority);
-	
-	//ER		getTime([out]SYSTIM *p_systemTime);
-	//ER		getMicroTime([out]SYSUTM *p_systemMicroTime);
-	
+	ER		multiRotateReadyQueue([in] ID domainId, [in] PRI taskPriority);
+	ER		getTaskId([out] ID *p_taskId);
+	ER		getDomainId([out] ID *p_domainId);
+	ER		getLoad([in] PRI taskPriority, [out] uint_t *p_load);
+	ER		multiGetLoad([in] ID domainId, [in] PRI taskPriority,
+													[out] uint_t *p_load);
+	ER		getNthTask([in] PRI taskPriority, [in] uint_t nth,
+													[out] ID *p_taskID);
+	ER		multiGetNthTask([in] ID domainId, [in] PRI taskPriority,
+									[in] uint_t nth, [out] ID *p_taskID);
 	ER		lockCpu(void);
 	ER		unlockCpu(void);
 	ER		disableDispatch(void);
 	ER		enableDispatch(void);
-	ER      changeInterruptPriorityMask([in] PRI interruptPriority);
-	ER      getInterruptPriorityMask([out] PRI *p_interruptPriority);
-
-	ER		exitKernel(void);
 	bool_t	senseContext(void);
 	bool_t	senseLock(void);
 	bool_t	senseDispatch(void);
 	bool_t	senseDispatchPendingState(void);
 	bool_t	senseKernel(void);
+	ER		exitKernel(void);
+
+	ER		probeMemory([in] const void *base, [in] size_t size,
+							[in] ID taskId, [in] MODE probeMemoryMode);
+	ER		referMemory([in] const void *address,
+										[out] T_RMEM *pk_memoryStatus);
+
+	ER		changeInterruptPriorityMask([in] PRI interruptPriority);
+	ER		getInterruptPriorityMask([out] PRI *p_interruptPriority);
+
+	ER		changeSystemOperationMode([in] ID somId);
+	ER		getSystemOperationMode([out] ID *p_somId);
 };
+
+/*
+*  ã‚«ãƒ¼ãƒãƒ«æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
 [context("non-task")]
 signature siKernel {
+	HRTCNT	fetchHighResolutionTimer(void);
 
-	ER      getTaskId([out]ID *p_taskId);
 	ER		rotateReadyQueue([in] PRI taskPriority);
-	//ER		getMicroTime([out]SYSUTM *p_systemMicroTime);
-	
-	ER      lockCpu(void);
-	ER      unlockCpu(void);
-
-	ER		exitKernel(void);
+	ER		multiRotateReadyQueue([in] ID domainId, [in] PRI taskPriority);
+	ER		getTaskId([out]ID *p_taskId);
+	ER		getDomainId([out] ID *p_domainId);
+	ER		lockCpu(void);
+	ER		unlockCpu(void);
 	bool_t	senseContext(void);
 	bool_t	senseLock(void);
 	bool_t	senseDispatch(void);
 	bool_t	senseDispatchPendingState(void);
 	bool_t	senseKernel(void);
+	ER		exitKernel(void);
+
+	/* CPUä¾‹å¤–ãƒãƒ³ãƒ‰ãƒ©ä¸­ã§ä½¿ç”¨ã™ã‚‹ */
+	bool_t	exceptionSenseDispatchPendingState
+						([in] const void *p_exceptionInformation);
 };
 
+/*
+*  ã‚«ãƒ¼ãƒãƒ«ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
 [singleton]
-celltype tKernel{
+celltype tKernel {
+	[inline] entry	sKernel		eKernel;
+	[inline] entry	siKernel	eiKernel;
 
-	[inline] entry sKernel  eKernel;
-	[inline] entry siKernel eiKernel;
+	attr {
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+};
+
+/*
+*  ã‚¿ã‚¤ãƒ ã‚¤ãƒ™ãƒ³ãƒˆé€šçŸ¥ã‚’å—ã‘å–ã‚‹ãŸã‚ã®ã‚·ã‚°ãƒãƒãƒ£
+*/
+[context("non-task")]
+signature siNotificationHandler {
+};
+
+/*
+*  ã‚¿ã‚¹ã‚¯æœ¬ä½“ã®ã‚·ã‚°ãƒ‹ãƒãƒ£
+*/
+signature sTaskBody {
+	void	main(void);
+};
+
+/*
+*  ã‚¿ã‚¹ã‚¯æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sTask {
+	ER		activate(void);
+	ER_UINT	cancelActivate(void);
+	ER		getTaskState([out] STAT *p_tskstat);
+	ER		changePriority([in] PRI priority);
+	ER		getPriority([out] PRI *p_priority);
+	ER		refer([out] T_RTSK *pk_taskStatus);
+
+	ER		wakeup(void);
+	ER_UINT	cancelWakeup(void);
+	ER		releaseWait(void);
+	ER		suspend(void);
+	ER		resume(void);
+
+	ER		raiseTerminate(void);
+	ER		terminate(void);
+};
+
+/*
+*  ã‚¿ã‚¹ã‚¯æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siTask {
+	ER		activate(void);
+	ER		wakeup(void);
+	ER		releaseWait(void);
+};
+
+/*
+*  ã‚¿ã‚¹ã‚¯ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  ã‚¿ã‚¹ã‚¯ã¯ã„ãšã‚Œã‹ã®ä¿è­·ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(HRPTaskPlugin, "")]
+celltype tTask {
+	[inline] entry	sTask	eTask;
+	[inline] entry	siTask	eiTask;
+	call	sTaskBody	cTaskBody;
+
+	[inline] entry	siNotificationHandler	eiActivateNotificationHandler;
+	[inline] entry	siNotificationHandler	eiWakeUpNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("TSKID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] PRI		priority;
+		[omit] size_t	stackSize;
+		[omit] size_t	systemStackSize = 0;
+						/* 0ã‚’ï¼Œæœªå®šç¾©ã‚’ç¤ºã™å€¤ã¨ã—ã¦ä½¿ã£ã¦ã„ã‚‹ */
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+						/* OMITã‚’ï¼Œæœªå®šç¾©ã‚’ç¤ºã™æ–‡å­—åˆ—ã¨ã—ã¦ä½¿ã£ã¦ã„ã‚‹ */
+	};
+
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ã‚»ãƒãƒ•ã‚©æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sSemaphore {
+	ER		signal(void);
+	ER		wait(void);
+	ER		waitPolling(void);
+	ER		waitTimeout([in] TMO timeout);
+	ER		initialize(void);
+	ER		refer([out] T_RSEM *pk_semaphoreStatus);
+};
+
+/*
+*  ã‚»ãƒãƒ•ã‚©æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siSemaphore {
+	ER		signal(void);
+};
+
+/*
+*  ã‚»ãƒãƒ•ã‚©ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "SEMAPHORE")]
+celltype tSemaphore {
+	[inline] entry	sSemaphore	eSemaphore;
+	[inline] entry	siSemaphore	eiSemaphore;
+
+	[inline] entry	siNotificationHandler	eiNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("SEMID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] uint_t	initialCount;
+		[omit] uint_t	maxCount = 1;
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sEventflag {
+	ER		set([in] FLGPTN setPattern);
+	ER		clear([in] FLGPTN clearPattern);
+	ER		wait([in] FLGPTN waitPattern, [in] MODE waitMode,
+											[out] FLGPTN *p_flagPattern);
+	ER		waitPolling([in] FLGPTN waitPattern, [in] MODE waitMode,
+											[out] FLGPTN *p_flagPattern);
+	ER		waitTimeout([in] FLGPTN waitPattern, [in] MODE waitMode,
+							[out] FLGPTN *p_flagPattern, [in] TMO timeout);
+	ER		initialize(void);
+	ER		refer([out] T_RFLG *pk_eventflagStatus);
+};
+
+/*
+*  ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siEventflag {
+	ER		set([in] FLGPTN setPattern);
+};
+
+/*
+*  ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "EVENTFLAG")]
+celltype tEventflag {
+	[inline] entry	sEventflag	eEventflag;
+	[inline] entry	siEventflag	eiEventflag;
+
+	[inline] entry	siNotificationHandler	eiNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("FLGID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] FLGPTN	flagPattern;
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sDataqueue {
+	ER 		send([in] intptr_t data);
+	ER 		sendPolling([in] intptr_t data);
+	ER 		sendTimeout([in] intptr_t data, [in] TMO timeout);
+	ER 		sendForce([in] intptr_t data);
+	ER 		receive([out] intptr_t *p_data);
+	ER 		receivePolling([out] intptr_t *p_data);
+	ER 		receiveTimeout([out] intptr_t *p_data, [in] TMO timeout);
+	ER 		initialize(void);
+	ER 		refer([out] T_RDTQ *pk_dataqueueStatus);
+};
+
+/*
+*  ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siDataqueue {
+	ER		sendPolling([in] intptr_t data);
+	ER		sendForce([in] intptr_t data);
+};
+
+/*
+*  ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "DATAQUEUE")]
+celltype tDataqueue {
+	[inline] entry	sDataqueue	eDataqueue;
+	[inline] entry	siDataqueue	eiDataqueue;
+
+	[inline] entry	siNotificationHandler	eiNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("DTQID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] uint_t	dataCount = 1;
+		[omit] void		*dataqueueManagementBuffer = C_EXP("NULL");
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  å„ªå…ˆåº¦ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sPriorityDataqueue {
+	ER 		send([in] intptr_t data, [in] PRI dataPriority);
+	ER 		sendPolling([in] intptr_t data, [in] PRI dataPriority);
+	ER 		sendTimeout([in] intptr_t data, [in] PRI dataPriority,
+													[in] TMO timeout);
+	ER 		receive([out] intptr_t *p_data, [out] PRI *p_dataPriority);
+	ER 		receivePolling([out] intptr_t *p_data, [out] PRI *p_dataPriority);
+	ER 		receiveTimeout([out] intptr_t *p_data, [out] PRI *p_dataPriority,
+													[in] TMO timeout);
+	ER 		initialize(void);
+	ER 		refer([out] T_RPDQ *pk_priorityDataqueueStatus);
+};
+
+/*
+*  å„ªå…ˆåº¦ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siPriorityDataqueue {
+	ER		sendPolling([in] intptr_t data, [in] PRI dataPriority);
+};
+
+/*
+*  å„ªå…ˆåº¦ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "PRIORITY_DATAQUEUE")]
+celltype tPriorityDataqueue {
+	[inline] entry	sPriorityDataqueue	ePriorityDataqueue;
+	[inline] entry	siPriorityDataqueue	eiPriorityDataqueue;
+
+	attr {
+		ID				id = C_EXP("PDTQID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] uint_t	dataCount = 1;
+		[omit] PRI		maxDataPriority;
+		[omit] void		*priorityDataqueueManagementBuffer = C_EXP("NULL");
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sMutex {
+	ER		lock(void);
+	ER		lockPolling(void);
+	ER		lockTimeout([in] TMO timeout);
+	ER		unlock(void);
+	ER		initialize(void);
+	ER		refer([out] T_RMTX *pk_mutexStatus);
+};
+
+/*
+*  ãƒŸãƒ¥ãƒ¼ãƒ†ãƒƒã‚¯ã‚¹ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "MUTEX")]
+celltype tMutex {
+	[inline] entry	sMutex	eMutex;
+
+	attr {
+		ID				id = C_EXP("MTXID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] PRI		ceilingPriority = 0;
+						/* 0ã‚’ï¼Œæœªå®šç¾©ã‚’ç¤ºã™å€¤ã¨ã—ã¦ä½¿ã£ã¦ã„ã‚‹ */
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒãƒƒãƒ•ã‚¡æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sMessageBuffer {
+	ER		send([in, size_is(size)] const uint8_t *message,
+														[in] uint32_t size);
+	ER		sendPolling([in, size_is(size)] const uint8_t *message,
+														[in] uint32_t size);
+	ER		sendTimeout([in, size_is(size)] const uint8_t *message,
+										[in] uint32_t size, [in] TMO timeout);
+	ER_UINT	receive([out] uint8_t *message);
+	ER_UINT	receivePolling([out] uint8_t *message);
+	ER_UINT	receiveTimeout([out] uint8_t *message, [in] TMO timeout);
+	ER		initialize(void);
+	ER		refer([out] T_RMBF *pk_messageBufferStatus);
+};
+
+/*
+*  ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãƒãƒƒãƒ•ã‚¡ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "MESSAGE_BUFFER")]
+celltype tMessageBuffer{
+	[inline] entry	sMessageBuffer	eMessageBuffer;
+
+	attr {
+		ID				id = C_EXP( "MBFID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] uint32_t	maxMessageSize;
+		[omit] uint32_t	bufferSize;
+		[omit] void		*messageBufferManagementBuffer = C_EXP("NULL");
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  å›ºå®šé•·ãƒ¡ãƒ¢ãƒªãƒ¡ãƒ¢ãƒªãƒ—ãƒ¼ãƒ«æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[deviate]
+signature sFixedSizeMemoryPool {
+	ER 		get([out] void **p_block);
+	ER 		getPolling([out] void **p_block);
+	ER 		getTimeout([out] void **p_block, [in] TMO timeout);
+	ER 		release([in] const void *block);
+	ER 		initialize(void);
+	ER 		refer([out] T_RMPF *pk_fixedSizeMemoryPoolStatus);
+};
+
+/*
+*  å›ºå®šé•·ãƒ¡ãƒ¢ãƒªãƒ—ãƒ¼ãƒ«ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[generate(HRPObjectPlugin, "FIXED_SIZE_MEMORYPOOL")]
+celltype tFixedSizeMemoryPool {
+	[inline] entry	sFixedSizeMemoryPool	eFixedSizeMemoryPool;
+
+	attr {
+		ID				id = C_EXP("MPFID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] uint_t	blockCount;
+		[omit] uint_t	blockSize;
+		[omit] MPF_T	*memoryPool = C_EXP("NULL");
+		[omit] void 	*memoryPoolManagementBuffer = C_EXP("NULL");
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ãƒãƒ³ãƒ‰ãƒ©æœ¬ä½“ã®ã‚·ã‚°ãƒ‹ãƒãƒ£
+*/
+[context("non-task")]
+signature siHandlerBody {
+	void	main(void);
+};
+
+/*
+*  ã‚¿ã‚¤ãƒ ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’æŒ‡å®šã™ã‚‹ãŸã‚ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+celltype tTimeEventHandler {
+	entry		siNotificationHandler	eiNotificationHandler;
+	[omit] call	siHandlerBody			ciHandlerBody;
+
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+	};
+};
+
+/*
+*  å‘¨æœŸé€šçŸ¥ã‚’æ“ä½œã™ã‚‹ãŸã‚ã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*
+*  å‘¨æœŸé€šçŸ¥ã¯ã„ãšã‚Œã‹ã®ä¿è­·ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼ã‚¿ã‚¤ãƒ 
+*  ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’å‘¼ã³å‡ºã™å ´åˆã«ã¯ï¼Œã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘
+*  ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+signature sCyclic {
+	ER		start(void);
+	ER		stop(void);
+	ER		refer([out]T_RCYC *pk_cyclicHandlerStatus);
+};
+
+/*
+*  å‘¨æœŸé€šçŸ¥ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[active, generate(NotifierPlugin,
+	"factory=\"CRE_CYC({{id}}, { {{attribute}}, { {{_handler_params_}} }, "
+	"{{cycleTime}}, {{cyclePhase}} });\", output_file=tecsgen.cfg")]
+celltype tCyclicNotifier {
+	[inline] entry	sCyclic		eCyclic;
+
+	call			siNotificationHandler	ciNotificationHandler;
+	[optional] call siNotificationHandler	ciErrorNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("CYCID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] bool_t	ignoreErrors = false;
+		[omit] RELTIM	cycleTime;
+		[omit] RELTIM	cyclePhase = 0;
+
+		/* å¤‰æ•°ã®è¨­å®šã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SETVARï¼‰*/
+		[omit] intptr_t *setVariableAddress = 0;
+		[omit] intptr_t setVariableValue = 0;
+
+		/* å¤‰æ•°ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_INCVARï¼‰*/
+		[omit] intptr_t *incrementedVariableAddress = 0;
+
+		/* ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒãƒˆã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SETFLGï¼‰*/
+		[omit] FLGPTN flagPattern = 0;
+
+		/* ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼ã¸ã®é€ä¿¡ã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SNDDTQï¼‰*/
+		[omit] intptr_t dataqueueSentValue = 0;
+
+		/* å¤‰æ•°ã®è¨­å®šã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_SETVARï¼‰*/
+		[omit] intptr_t *setVariableAddressForError = 0;
+
+		/* å¤‰æ•°ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_INCVARï¼‰*/
+		[omit] intptr_t *incrementedVariableAddressForError = 0;
+
+		/* ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒãƒˆã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_SETFLGï¼‰*/
+		[omit] FLGPTN flagPatternForError = 0;
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  å‘¨æœŸé€šçŸ¥ã«ã‚¿ã‚¤ãƒ ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’æŒ‡å®šã™ã‚‹ãŸã‚ã®è¤‡åˆã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[active]
+composite tCyclicHandler {
+	entry		sCyclic			eCyclic;
+	[omit] call	siHandlerBody	ciHandlerBody;
+
+	attr {
+		ID				id = C_EXP("CYCID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] RELTIM	cycleTime;
+		[omit] RELTIM	cyclePhase = 0;
+	};
+
+	cell tCyclicNotifier CyclicNotifier {
+		id = composite.id;
+		attribute = composite.attribute;
+		ciNotificationHandler = TimeEventHandler.eiNotificationHandler;
+		cycleTime = composite.cycleTime;
+		cyclePhase = composite.cyclePhase;
+	};
+
+	cell tTimeEventHandler TimeEventHandler {
+		ciHandlerBody => composite.ciHandlerBody;
+	};
+
+	eCyclic => CyclicNotifier.eCyclic;
+};
+
+/*
+*  ã‚¢ãƒ©ãƒ¼ãƒ é€šçŸ¥ã‚’æ“ä½œã™ã‚‹ãŸã‚ã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sAlarm {
+	ER		start([in] RELTIM alarmTime);
+	ER		stop(void);
+	ER		refer([out]T_RALM *pk_alarmStatus);
+};
+
+/*
+*  ã‚¢ãƒ©ãƒ¼ãƒ é€šçŸ¥ã‚’æ“ä½œã™ã‚‹ãŸã‚ã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆéã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+[context("non-task")]
+signature siAlarm {
+	ER		start([in] RELTIM alarmTime);
+	ER		stop(void);
+};
+
+/*
+*  ã‚¢ãƒ©ãƒ¼ãƒ é€šçŸ¥ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  ã‚¢ãƒ©ãƒ¼ãƒ é€šçŸ¥ã¯ã„ãšã‚Œã‹ã®ä¿è­·ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼ã‚¿
+*  ã‚¤ãƒ ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’å‘¼ã³å‡ºã™å ´åˆã«ã¯ï¼Œã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›
+*  ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(NotifierPlugin,
+	"factory=\"CRE_ALM({{id}}, { {{attribute}}, {{{_handler_params_}}} });\", "
+	"output_file=tecsgen.cfg")]
+celltype tAlarmNotifier {
+	[inline] entry	sAlarm		eAlarm;
+	[inline] entry	siAlarm		eiAlarm;
+
+	call			siNotificationHandler	ciNotificationHandler;
+	[optional] call	siNotificationHandler	ciErrorNotificationHandler;
+
+	attr {
+		ID				id = C_EXP("ALMID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] bool_t	ignoreErrors = false;
+
+		/* å¤‰æ•°ã®è¨­å®šã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SETVARï¼‰*/
+		[omit] intptr_t *setVariableAddress = 0;
+		[omit] intptr_t setVariableValue = 0;
+
+		/* å¤‰æ•°ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_INCVARï¼‰*/
+		[omit] intptr_t *incrementedVariableAddress = 0;
+
+		/* ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒãƒˆã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SETFLGï¼‰*/
+		[omit] FLGPTN flagPattern = 0;
+
+		/* ãƒ‡ãƒ¼ã‚¿ã‚­ãƒ¥ãƒ¼ã¸ã®é€ä¿¡ã«ã‚ˆã‚‹é€šçŸ¥ï¼ˆTNFY_SNDDTQï¼‰*/
+		[omit] intptr_t dataqueueSentValue = 0;
+
+		/* å¤‰æ•°ã®è¨­å®šã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_SETVARï¼‰*/
+		[omit] intptr_t *setVariableAddressForError = 0;
+
+		/* å¤‰æ•°ã®ã‚¤ãƒ³ã‚¯ãƒªãƒ¡ãƒ³ãƒˆã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_INCVARï¼‰*/
+		[omit] intptr_t *incrementedVariableAddressForError = 0;
+
+		/* ã‚¤ãƒ™ãƒ³ãƒˆãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒãƒˆã«ã‚ˆã‚‹ã‚¨ãƒ©ãƒ¼é€šçŸ¥ï¼ˆTENFY_SETFLGï¼‰*/
+		[omit] FLGPTN flagPatternForError = 0;
+
+		[omit] ACPTN	accessPattern1 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern2 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern3 = C_EXP("OMIT");
+		[omit] ACPTN	accessPattern4 = C_EXP("OMIT");
+	};
+
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  ã‚¢ãƒ©ãƒ¼ãƒ é€šçŸ¥ã«ã‚¿ã‚¤ãƒ ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’æŒ‡å®šã™ã‚‹ãŸã‚ã®è¤‡åˆã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*/
+[active]
+composite tAlarmHandler {
+	entry		sAlarm			eAlarm;
+	entry		siAlarm			eiAlarm;
+	[omit] call	siHandlerBody	ciHandlerBody;
+
+	attr {
+		ID			id = C_EXP("ALMID_$id$");
+		[omit] ATR	attribute = C_EXP("TA_NULL");
+	};
+
+	cell tAlarmNotifier AlarmNotifier {
+		id = composite.id;
+		attribute = composite.attribute;
+		ciNotificationHandler = TimeEventHandler.eiNotificationHandler;
+	};
+
+	cell tTimeEventHandler TimeEventHandler {
+		ciHandlerBody => composite.ciHandlerBody;
+	};
+
+	eAlarm => AlarmNotifier.eAlarm;
+	eiAlarm => AlarmNotifier.eiAlarm;
+};
+
+/*
+*  å‰²è¾¼ã¿è¦æ±‚ãƒ©ã‚¤ãƒ³æ“ä½œã®ã‚·ã‚°ãƒ‹ãƒãƒ£ï¼ˆã‚¿ã‚¹ã‚¯ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç”¨ï¼‰
+*/
+signature sInterruptRequest {
+	ER		disable(void);
+	ER		enable(void);
+	ER		clear(void);
+	ER		raise(void);
+	ER_BOOL	probe(void);
+};
+
+/*
+*  å‰²è¾¼ã¿è¦æ±‚ãƒ©ã‚¤ãƒ³ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  å‰²è¾¼ã¿è¦æ±‚ãƒ©ã‚¤ãƒ³ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[generate(HRPHandlerPlugin, "CONFIG_INT")]
+celltype tInterruptRequest {
+	[inline] entry	sInterruptRequest	eInterruptRequest;
+
+	attr {
+		INTNO			interruptNumber;
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] PRI		interruptPriority;
+	};
+
+	/* è­¦å‘Šãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’æŠ‘æ­¢ã™ã‚‹ãŸã‚ã®è¨˜è¿° */
+	factory {
+		write("tecsgen.cfg", "");
+	};
+};
+
+/*
+*  å‰²è¾¼ã¿ã‚µãƒ¼ãƒ“ã‚¹ãƒ«ãƒ¼ãƒãƒ³ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  å‰²è¾¼ã¿ã‚µãƒ¼ãƒ“ã‚¹ãƒ«ãƒ¼ãƒãƒ³ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*  HRP3ã‚«ãƒ¼ãƒãƒ«ã§ã¯ï¼ŒISRã«å¯¾ã™ã‚‹ã‚¢ã‚¯ã‚»ã‚¹è¨±å¯ãƒ™ã‚¯ã‚¿ã¯ä½¿ã‚ã‚Œãªã„ãŸã‚ï¼Œ
+*  accessPattern1ã€œaccessPattern4ã¯ç”¨æ„ã—ãªã„ï¼
+*/
+[active, generate(HRPHandlerPlugin, "ISR")]
+celltype tISR {
+	call	siHandlerBody	ciISRBody;
+
+	attr {
+		ID				id = C_EXP("ISRID_$id$");
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+		[omit] INTNO	interruptNumber;
+		[omit] PRI		isrPriority = 1;
+	};
+
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+/*
+*  å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  å‰²è¾¼ã¿ãƒãƒ³ãƒ‰ãƒ©ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(HRPHandlerPlugin, "DEF_INH")]
+celltype tInterruptHandler {
+	call	siHandlerBody	ciInterruptHandlerBody;
+
+	attr {
+		[omit] INHNO	interruptHandlerNumber;
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+	};
+
+	factory {
+		write("$ct$_tecsgen.h",
+				"#ifndef TOPPERS_MACRO_ONLY\n"
+				"extern void $id$_start(void);\n"
+				"#endif /* TOPPERS_MACRO_ONLY */\n");
+		write("$ct$.c",
+				"void $id$_start()\n"
+				"{\n"
+				"    CELLCB *p_cellcb = $cbp$;\n"
+				"    ciInterruptHandlerBody_main();\n"
+				"}\n");
+	};
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+		write("$ct$.c", "#include \"$ct$_tecsgen.h\"");
+	};
+};
+
+/*
+*  CPUä¾‹å¤–ãƒãƒ³ãƒ‰ãƒ©æœ¬ä½“ã®ã‚·ã‚°ãƒ‹ãƒãƒ£
+*/
+[context("non-task")]
+signature siCpuExceptionHandlerBody {
+	void	main([in] const void *p_excinf);
+};
+
+/*
+*  CPUä¾‹å¤–ãƒãƒ³ãƒ‰ãƒ©ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  CPUä¾‹å¤–ãƒãƒ³ãƒ‰ãƒ©ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(HRPHandlerPlugin, "DEF_EXC")]
+celltype tCpuExceptionHandler {
+	call	siCpuExceptionHandlerBody	ciCpuExceptionHandlerBody;
+
+	attr {
+		[omit] EXCNO	cpuExceptionHandlerNumber;
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+	};
+
+	factory {
+		write("$ct$_tecsgen.h",
+				"#ifndef TOPPERS_MACRO_ONLY\n"
+				"extern void $id$_start(void *p_excinf);\n"
+				"#endif /* TOPPERS_MACRO_ONLY */\n");
+		write("$ct$.c",
+				"void $id$_start(void *p_excinf)\n"
+				"{\n"
+				"    CELLCB *p_cellcb = $cbp$;\n"
+				"    ciCpuExceptionHandlerBody_main(p_excinf);\n"
+				"}\n");
+	};
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+		write("$ct$.c", "#include \"$ct$_tecsgen.h\"");
+	};
+};
+
+/*
+*  åˆæœŸåŒ–ï¼çµ‚äº†å‡¦ç†ãƒ«ãƒ¼ãƒãƒ³æœ¬ä½“ã®ã‚·ã‚°ãƒ‹ãƒãƒ£
+*/
+signature sRoutineBody {
+	void	main(void);
+};
+
+/*
+*  åˆæœŸåŒ–ãƒ«ãƒ¼ãƒãƒ³ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  åˆæœŸåŒ–ãƒ«ãƒ¼ãƒãƒ³ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(HRPHandlerPlugin, "INIT_ROUTINE")]
+celltype tInitializeRoutine {
+	call	sRoutineBody	cInitializeRoutineBody;
+
+	attr {
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+	};
+
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+	};
+};
+
+/*
+*  çµ‚äº†å‡¦ç†ãƒ«ãƒ¼ãƒãƒ³ã®ã‚»ãƒ«ã‚¿ã‚¤ãƒ—
+*
+*  çµ‚äº†å‡¦ç†ãƒ«ãƒ¼ãƒãƒ³ã¯ã‚«ãƒ¼ãƒãƒ«ãƒ‰ãƒ¡ã‚¤ãƒ³ã«æ‰€å±ã•ã›ãªã‘ã‚Œã°ãªã‚‰ãªã„ï¼
+*/
+[active, generate(HRPHandlerPlugin, "TERM_ROUTINE")]
+celltype tTerminateRoutine {
+	call	sRoutineBody	cTerminateRoutineBody;
+
+	attr {
+		[omit] ATR		attribute = C_EXP("TA_NULL");
+	};
+
+	FACTORY {
+		write("tecsgen.cfg", "#include \"$ct$_tecsgen.h\"");
+	};
 };

@@ -3,7 +3,7 @@
 #  TECS Generator
 #      Generator for TOPPERS Embedded Component System
 #  
-#   Copyright (C) 2008-2014 by TOPPERS Project
+#   Copyright (C) 2008-2020 by TOPPERS Project
 #--
 #   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
 #   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
@@ -34,7 +34,7 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 #  
-#   $Id: GenTransparentMarshaler.rb 2952 2018-05-07 10:19:07Z okuma-top $
+#   $Id: GenTransparentMarshaler.rb 3140 2020-03-29 09:21:42Z okuma-top $
 #++
 
 #プラグインオプション用変数
@@ -108,6 +108,10 @@ module GenTransparentMarshaler
     @marshaler_celltype_name = "tMarshaler_#{@signature.get_global_name}"
     @unmarshaler_celltype_name = "tUnmarshaler_#{@signature.get_global_name}"
     @marshaler_celltype_file_name = "#{$gen}/#{@marshaler_celltype_name}.cdl"
+
+    if @signature.get_context != "task" then
+      cdl_error( "RPC9999 context of signature ($1) must be 'task'. $2 is not compatible with RPCPlugin", @signature.get_name, @signature.get_context )
+    end
   end
 
   def gen_marshaler_celltype 

@@ -90,6 +90,7 @@
 #define TMAX_APP_DATA_SIZE   (1024 * 1024) //!< Maximum size of the data section in a loadable application module
 #define TMAX_APP_BINARY_SIZE (1024 * 1024) //!< Maximum size of a loadable application module's binary file
 
+
 /**
  * LCD configuration
  */

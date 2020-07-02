@@ -3,7 +3,7 @@
 #  TECS Generator
 #      Generator for TOPPERS Embedded Component System
 #  
-#   Copyright (C) 2008-2018 by TOPPERS Project
+#   Copyright (C) 2008-2020 by TOPPERS Project
 #--
 #   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
 #   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
@@ -34,7 +34,7 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 #  
-#  $Id: HRPSVCPlugin.rb 3055 2019-03-16 01:04:55Z okuma-top $
+#  $Id: HRPSVCPlugin.rb 3140 2020-03-29 09:21:42Z okuma-top $
 #++
 
 # mikan through plugin: namespace が考慮されていない
@@ -100,6 +100,19 @@ class HRPSVCPlugin < ThroughPlugin
   def initialize( cell_name, plugin_arg, next_cell, next_cell_port_name, next_cell_port_subscript, signature, celltype, caller_cell )
     super
 
+    caller_dt = caller_cell.get_region.get_domain_root.get_domain_type
+    if caller_dt == nil then
+      cdl_error( "HSV0010 caller cell '$1' is not in domain region.", caller_cell.get_name )
+    elsif caller_dt.get_name != :HRP && caller_dt.get_name != :HRMP then
+      cdl_error( "HSV0011 domain of caller cell '$1' is '$1'. This plugin supports HRP or HRMP", caller_cell.get_name, caller_dt.get_name )
+    end
+    callee_dt = next_cell.get_region.get_domain_root.get_domain_type
+    if callee_dt == nil then
+      cdl_error( "HSV0012 callee cell '$1' is not in domain region.", next_cell.get_name )
+    elsif ( callee_dt.get_name != :HRP && callee_dt.get_name != :HRMP ) then
+      cdl_error( "HSV0013 domain of callee cell '$1' is '$2'. This plugin supports HRP or HRMP", next_cell.get_name, callee_dt.get_name )
+    end
+    
     # 受け口配列の場合、配列添数ごとに別のセルタイプとする
     # セルタイプをシングルトン化したいため。
     # さもないと、セルを識別する引数を渡す必要があり、NUM_SVC_ARG_MAX(5) つしか渡せない引数の一つを消費することになるため。
@@ -592,6 +605,7 @@ EOT
   #
   def gen_caller_check_code(func_name)  
     dbgPrint "gen_caller_check_code(func_name): #{@callee_cell.get_name}\n"
+    print "gen_caller_check_code(func_name): #{@callee_cell.get_name}\n"
       # 
       #  エラーチェック処理
       #
@@ -684,7 +698,15 @@ EOT
       #  すべてのユーザドメインから呼出し可能な場合，ドメインチェックは
       #  実施しない
       #
-      all_domain_regions = DomainType.get_domain_regions[:HRP].select { |reg|
+      # HRP3, HRMP3 両対応
+      if DomainType.get_domain_regions(@end_region.get_node_root)[:HRP] then
+        regions = DomainType.get_domain_regions(@end_region.get_node_root)[:HRP]
+      elsif DomainType.get_domain_regions(@end_region.get_node_root)[:HRMP] then
+        regions = DomainType.get_domain_regions(@end_region.get_node_root)[:HRMP]
+      else
+        cdl_error( "HRMPSVCPlugin invoked under non-HRP, nor HRMP domain" )
+      end
+      all_domain_regions = regions.select { |reg|
           ((reg.get_domain_type.get_option != "OutOfDomain") && \
            (reg.get_domain_type.get_option != "kernel"))
 

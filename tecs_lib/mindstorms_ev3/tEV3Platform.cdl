@@ -5,7 +5,7 @@ signature sRiteVM {
 };
 
 celltype tEV3Platform{
-	entry sTaskBody eTaskBody;
+	entry nLUM::sTaskBody eTaskBody;
     [optional] call sRiteVM cRiteVM[];
     [optional] call sTask cTask[];
 };

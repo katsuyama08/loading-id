@@ -3,7 +3,7 @@
 #  TECS Generator
 #      Generator for TOPPERS Embedded Component System
 #  
-#   Copyright (C) 2014-2018 by TOPPERS Project
+#   Copyright (C) 2014-2020 by TOPPERS Project
 #--
 #   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
 #   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
@@ -34,9 +34,8 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 #  
-#  $Id: HRPPlugin.rb 2952 2018-05-07 10:19:07Z okuma-top $
+#  $Id: HRPPlugin.rb 3149 2020-05-17 05:37:58Z okuma-top $
 #++
-
 
 require_tecsgen_lib "HRPKernelObjectManager.rb"
 #
@@ -54,7 +53,7 @@ class HRPPlugin < DomainPlugin
       # OK
       @option = option
     else
-      cdl_error( "HRPPlugin: '$1' is unacceptable domain kind, specify 'kernel' or 'user'", option )
+      cdl_error( "HRPPlugin: '$1' is unacceptable domain kind, specify 'kernel', 'user' or 'OutOfDomain'", option )
       @option = "kernel"   # とりあえず kernel を設定しておく
     end
   end
@@ -109,8 +108,9 @@ class HRPPlugin < DomainPlugin
         # ユーザドメインからカーネルドメインへの結合
         # @plugin_body = HRP2SVCPlugin.new(cell_name, plugin_arg, next_cell, next_cell_port_name, signature, celltype, caller_cell)
         # puts "***** svc"
-        return [ :HRPSVCPlugin, "" ]
-    elsif current_domain != next_domain
+        # return [ :HRPSVCPlugin, "" ]
+        return [ :HRPSVCThroughPlugin, "" ]
+      elsif current_domain != next_domain
         # 別のユーザドメインへの結合
         # @plugin_body = HRP2RPCPlugin.new(cell_name, plugin_arg, next_cell, next_cell_port_name, signature, celltype, caller_cell)
         # puts "***** rpc"
@@ -143,54 +143,58 @@ class HRPPlugin < DomainPlugin
   end
 
   # ATT_MODを生成済みかどうか                   # 2017.8.27
-  @@generate_memory_module = false
+  @@generate_memory_module = {}
 
   @@include_extsvc_fncd = false  # 17.07.26 暫定
   # 
   #  ATT_MODの生成
   #  gen_factory実行時には，すべてのセルタイププラグインを生成済みのはずなので，
   #  カーネルAPIコードのメモリ保護を省略できる．
-  #
-  def gen_factory
-    super
 
+  #node_root::Region : ノードのルート
+  def gen_factory node_root
+    super
+    dbgPrint "HRPPlugin: $generating_region=#{$generating_region.get_name} $gen=#{$gen}\n"
     if @@include_extsvc_fncd == false
       file = AppFile.open( "#{$gen}/tecsgen.cfg" )
-      file.print "/* HRPPlugin 001 */\n"
+      file.print "/* HRP001 */\n"
       file.print "#include \"extsvc_fncode.h\"\n"   ## 2017.7.26
       file.close
       @@include_extsvc_fncd = true
     end
 
-    if @@generate_memory_module == false
+    if @@generate_memory_module[ node_root ] == nil
+      @@generate_memory_module[ node_root ] = true
 
       # INCLUDE を出力
       #  すべてのドメインに対する cfg を先に生成しておく
       #  もし、ドメインに属するカーネルオブジェクトも、モジュールもない場合でも、cfg が出力される
-      regions = DomainType.get_domain_regions[ :HRP ]
-      file = AppFile.open( "#{$gen}/tecsgen.cfg" )
-      file.print "/* HRPPlugin 002 */\n"
-      regions.each{ |region|
-        if ! region.is_root? then
-          nsp = "#{region.get_global_name}"
-          file2 = AppFile.open( "#{$gen}/tecsgen_#{nsp}.cfg" )
-          file2.close
-          case region.get_domain_type.get_kind
-          when :kernel
-            pre = "KERNEL_DOMAIN{\n    "
-            post = "}\n"
-          when :user
-            pre = "DOMAIN(#{region.get_name}){\n    "
-            post = "}\n"
-          when :OutOfDomain
-            pre = ""
-            post = "\n"
+      regions = DomainType.get_domain_regions(node_root)[ :HRP ]
+      if regions then   # node_root が HRP リージョン外の場合は、以下を実施しない
+        file = AppFile.open( "#{$gen}/tecsgen.cfg" )
+        file.print "/* HRP002 */\n"
+        regions.each{ |region|
+          if ! region.is_root? then
+            nsp = "#{region.get_global_name}"
+            file2 = AppFile.open( "#{$gen}/tecsgen_#{nsp}.cfg" )
+            file2.close
+            case region.get_domain_type.get_kind
+            when :kernel
+              pre = "KERNEL_DOMAIN{\n    "
+              post = "}\n"
+            when :user
+              pre = "DOMAIN(#{region.get_name}){\n    "
+              post = "}\n"
+            when :OutOfDomain
+              pre = ""
+              post = "\n"
+            end
+            file.puts "#{pre}INCLUDE(\"#{$gen}/tecsgen_#{nsp}.cfg\");\n#{post}"
           end
-          file.puts "#{pre}INCLUDE(\"#{$gen}/tecsgen_#{nsp}.cfg\");\n#{post}"
-        end
-      }
-      file.print "/* HRPPlugin 002 end */\n\n"
-      file.close
+        }
+        file.print "/* HRP002 end */\n\n"
+        file.close
+      end
 
       check_celltype_list = []
 
@@ -200,7 +204,9 @@ class HRPPlugin < DomainPlugin
       Cell.get_cell_list2.each { |cell|
         # すべてのセルを走査してセルタイプをチェック
         ct = cell.get_celltype
-        if ct.class == Celltype && check_celltype_list.include?( ct ) == false
+        if ct.class == Celltype && check_celltype_list.include?( ct ) == false && ct.get_domain_roots[ :HRP ] != nil
+             # ct.get_domain_roots[ :HRP ] == nil なのは、ドメイン外 node にのみセルがあるセルタイプ
+
           # チェック済みセルタイプに登録
           check_celltype_list << ct
 
@@ -229,7 +235,7 @@ class HRPPlugin < DomainPlugin
             # ドメインが複数で，OutOfDomainにセルが存在しないセルタイプの場合
             # 共有のセル管理ブロックとスケルトンコードを登録する
             file = AppFile.open( "#{$gen}/tecsgen.cfg" )
-            file.printf "%-60s/* HRPPlugin 003 */\n", "ATT_MOD(\"#{ct.get_global_name}_tecsgen.o\");"
+            file.printf "%-60s/* HRP003 */\n", "ATT_MOD(\"#{ct.get_global_name}_tecsgen.o\");"
             file.close
           end
 
@@ -240,7 +246,7 @@ class HRPPlugin < DomainPlugin
               nsp = "_#{reg.get_global_name}"
             end
             file = AppFile.open( "#{$gen}/tecsgen#{nsp}.cfg" )
-            file.printf "%-50s/* HRPPlugin 004 */\n", "ATT_MOD(\"#{ct.get_global_name}#{nsp}_tecsgen.o\");"
+            file.printf "%-50s/* HRP004 */\n", "ATT_MOD(\"#{ct.get_global_name}#{nsp}_tecsgen.o\");"
             file.close
           }
 
@@ -260,14 +266,93 @@ class HRPPlugin < DomainPlugin
             file = AppFile.open( "#{$gen}/tecsgen_#{regions_hrp[0].get_global_name}.cfg" )
           end
 
-          file.printf "%-50s/* HRPPlugin 005 */\n", "ATT_MOD(\"#{ct.get_global_name}.o\");"
+          file.printf "%-50s/* HRP005 */\n", "ATT_MOD(\"#{ct.get_global_name}.o\");"
           file.close
         else
           # 何もしない
         end
+
       }
 
-      @@generate_memory_module = true
+      # 
+      #  拡張サービスコールの登録
+      #
+      file2 = AppFile.open( "#{$gen}/tecsgen.cfg" )
+      file2.print <<EOT
+
+/* HRP010 HRPPlugin */
+EOT
+      HRPSVCManage.get_list(node_root).each{ |cell_nsp, signature|
+        dbgPrint "RPPPlugin: cell_nsp=#{cell_nsp}\n"
+        cell = Namespace.find cell_nsp
+        ct = cell.get_celltype
+        file2.print <<EOT
+#include "#{signature.get_global_name}_tecsgen.h"
+#include "tHRPSVCCaller_#{signature.get_global_name}_factory.h"
+#include "tHRPSVCBody_#{signature.get_global_name}_factory.h"
+EOT
+        signature.get_function_head_array.each{|func_head|
+          file2.print <<EOT
+  KERNEL_DOMAIN{
+    DEF_SVC( TFN_#{cell.get_name.to_s.upcase} + FUNCID_#{signature.get_global_name.to_s.upcase}_#{func_head.get_name.to_s.upcase}-1, { TA_NULL, #{cell.get_global_name}_#{func_head.get_name}, SSZ_#{cell.get_name}_#{func_head.get_name} } );
+  }
+EOT
+        }
+      }
+      file2.print "/****/\n\n"
+      file2.close
+
+      HRPSVCManage.get_list(node_root).each{ |cell_nsp, signature|
+        cell = Namespace.find cell_nsp
+        ct = cell.get_celltype
+        file2 = AppFile.open( "#{$gen}/#{ct.get_global_name}.c")
+        file2.print "/* HRP0011 HRPPlugin */\n\n"
+        signature.get_function_head_array.each{|func_head|
+          file2.print <<EOT
+
+ER_UINT
+#{cell.get_global_name}_#{func_head.get_name}(intptr_t par1, intptr_t par2, intptr_t par3, intptr_t par4, intptr_t par5, ID cdmid)
+{
+  CELLIDX idx = #{ct.get_name_array(cell)[7]};
+  return #{ct.get_name}_#{func_head.get_name}(idx, par1, par2, par3, par4, par5, cdmid);
+}
+EOT
+        }
+      }
+      file2.close
+
+      val = "TFN_TECSGEN_ORIGIN"
+      offset = 0
+      HRPSVCManage.get_list(node_root).each{ |cell_nsp, signature|
+        cell = Namespace.find cell_nsp
+        ct = cell.get_celltype
+        # file2 = AppFile.open( "#{$gen}/#{ct.get_global_name}_factory.h" )
+        file2 = AppFile.open( "#{$gen}/tHRPSVCCaller_#{signature.get_global_name}_id.h" )
+        file2.print <<EOT
+/* HRP012 HRPPlugin gen_factory */
+#ifndef  TFN_#{cell.get_name.to_s.upcase}
+#include "extsvc_fncode.h"
+#define  TFN_#{cell.get_name.to_s.upcase}    (#{val}+#{offset.to_s})
+#endif
+EOT
+        file2.close
+
+        file2 = AppFile.open( "#{$gen}/tHRPSVCBody_#{signature.get_global_name}_factory.h" )
+        signature.get_function_head_array.each{|func_head|
+          file2.print <<EOT
+/* HRP013 */
+#include "tHRPSVCCaller_#{signature.get_global_name}_id.h"
+
+#ifndef SSZ_#{cell.get_name}_#{func_head.get_name}
+#define SSZ_#{cell.get_name}_#{func_head.get_name} DefaultExtsvcStackSize
+#endif /* SSZ_#{cell.get_name}_#{func_head.get_name} */
+ER_UINT #{cell.get_global_name}_#{func_head.get_name}(intptr_t par1, intptr_t par2, intptr_t par3, intptr_t par4, intptr_t par5, ID cdmid);
+
+EOT
+        }
+        file2.close
+        offset += signature.get_function_head_array.length
+      }
     else
       # 何もしない
     end

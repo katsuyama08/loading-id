@@ -3,7 +3,7 @@
 TARGET_BASE = info-raminitializer
 BASE_DIR = .
 GEN_DIR = $(BASE_DIR)/gen-raminitializer
-INCLUDES = -I ../../../../mruby/mruby-1.2.0/include -I $(BASE_DIR)/. -I $(BASE_DIR)/../cygwin -I $(TECSPATH) -I $(TECSPATH)/mruby -I $(TECSPATH)/posix -I $(TECSPATH)/rpc -I $(TECSPATH)/TECSInfo -I $(GEN_DIR) -I src
+INCLUDES = -I ../../../../mruby/mruby-1.2.0/include -I $(BASE_DIR)/. -I $(BASE_DIR)/../cygwin3 -I $(TECSPATH) -I $(TECSPATH)/mruby -I $(TECSPATH)/posix -I $(TECSPATH)/rpc -I $(TECSPATH)/TECSInfo -I $(GEN_DIR) -I src
 DEFINES =
 
 # end of fixed variable (unchangeable by config or plugin)
@@ -17,7 +17,7 @@ CFLAGS = $(INCLUDES) $(DEFINES) -D  "Inline=static inline" -g
 LD = gcc
 
 #default Liknker Options
-LDFLAGS = 
+LDFLAGS = -lpthread
 
 #default source directory
 SRC_DIR = $(BASE_DIR)/src
@@ -43,8 +43,8 @@ PRE_TECSGEN_TARGET =
 POST_TECSGEN_TARGET =
 
 # vpath for C sources and headers
-vpath %.c $(SRC_DIR) $(GEN_DIR)  ../cygwin $(TECSPATH) $(TECSPATH)/mruby $(TECSPATH)/posix $(TECSPATH)/rpc $(TECSPATH)/TECSInfo
-vpath %.h $(SRC_DIR) $(GEN_DIR)  ../cygwin $(TECSPATH) $(TECSPATH)/mruby $(TECSPATH)/posix $(TECSPATH)/rpc $(TECSPATH)/TECSInfo
+vpath %.c $(SRC_DIR) $(GEN_DIR)  ../cygwin3 $(TECSPATH) $(TECSPATH)/mruby $(TECSPATH)/posix $(TECSPATH)/rpc $(TECSPATH)/TECSInfo
+vpath %.h $(SRC_DIR) $(GEN_DIR)  ../cygwin3 $(TECSPATH) $(TECSPATH)/mruby $(TECSPATH)/posix $(TECSPATH)/rpc $(TECSPATH)/TECSInfo
 
 # Other objects (out of tecsgen)
 OTHER_OBJS =                      # Add objects out of tecs care.
@@ -70,7 +70,7 @@ clean :
 tecs : $(PRE_TECSGEN_TARGET) $(TIMESTAMP) $(POST_TECSGEN_TARGET)
 
 $(TIMESTAMP) : $(TECS_IMPORTS)
-	$(TECSGEN) -R -I ../cygwin -g $(GEN_DIR) info.cdl
+	$(TECSGEN) -R -I ../cygwin3 -g $(GEN_DIR) info.cdl
 
 #####  TECSFlow targets  #####
 tecsflow : $(GEN_DIR)/tecsgen.rbdmp tcflow

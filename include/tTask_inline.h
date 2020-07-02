@@ -50,7 +50,7 @@ Inline ER
 eTask_activate(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(act_tsk(*ATTR_id));
+	return(act_tsk(ATTR_id));
 }
 
 /*
@@ -60,7 +60,7 @@ Inline ER_UINT
 eTask_cancelActivate(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(can_act(*ATTR_id));
+	return(can_act(ATTR_id));
 }
 
 /*
@@ -70,7 +70,7 @@ Inline ER
 eTask_getTaskState(CELLIDX idx, STAT *p_tskstat)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(get_tst(*ATTR_id, p_tskstat));
+	return(get_tst(ATTR_id, p_tskstat));
 }
 
 /*
@@ -80,7 +80,7 @@ Inline ER
 eTask_changePriority(CELLIDX idx, PRI priority)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(chg_pri(*ATTR_id, priority));
+	return(chg_pri(ATTR_id, priority));
 }
 
 /*
@@ -90,7 +90,7 @@ Inline ER
 eTask_getPriority(CELLIDX idx, PRI *p_priority)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(get_pri(*ATTR_id, p_priority));
+	return(get_pri(ATTR_id, p_priority));
 }
 
 /*
@@ -100,7 +100,7 @@ Inline ER
 eTask_refer(CELLIDX idx, T_RTSK *pk_taskStatus)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(ref_tsk(*ATTR_id, pk_taskStatus));
+	return(ref_tsk(ATTR_id, pk_taskStatus));
 }
 
 /*
@@ -110,7 +110,7 @@ Inline ER
 eTask_wakeup(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(wup_tsk(*ATTR_id));
+	return(wup_tsk(ATTR_id));
 }
 
 /*
@@ -120,7 +120,7 @@ Inline ER_UINT
 eTask_cancelWakeup(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(can_wup(*ATTR_id));
+	return(can_wup(ATTR_id));
 }
 
 /*
@@ -130,7 +130,7 @@ Inline ER
 eTask_releaseWait(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(rel_wai(*ATTR_id));
+	return(rel_wai(ATTR_id));
 }
 
 /*
@@ -140,7 +140,7 @@ Inline ER
 eTask_suspend(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(sus_tsk(*ATTR_id));
+	return(sus_tsk(ATTR_id));
 }
 
 /*
@@ -150,7 +150,7 @@ Inline ER
 eTask_resume(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(rsm_tsk(*ATTR_id));
+	return(rsm_tsk(ATTR_id));
 }
 
 /*
@@ -160,7 +160,7 @@ Inline ER
 eTask_raiseTerminate(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(ras_ter(*ATTR_id));
+	return(ras_ter(ATTR_id));
 }
 
 /*
@@ -170,7 +170,7 @@ Inline ER
 eTask_terminate(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(ter_tsk(*ATTR_id));
+	return(ter_tsk(ATTR_id));
 }
 
 /*
@@ -180,7 +180,7 @@ Inline ER
 eiTask_activate(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(act_tsk(*ATTR_id));
+	return(act_tsk(ATTR_id));
 }
 
 /*
@@ -190,7 +190,7 @@ Inline ER
 eiTask_wakeup(CELLIDX idx)
 {
 	CELLCB	*p_cellcb= GET_CELLCB(idx);
-	return(iwup_tsk(*ATTR_id));
+	return(iwup_tsk(ATTR_id));
 }
 
 /*
@@ -200,7 +200,7 @@ Inline ER
 eiTask_releaseWait(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return(irel_wai(*ATTR_id));
+	return(irel_wai(ATTR_id));
 }
 
 #endif /* TOPPERS_TTASK_INLINE_H */

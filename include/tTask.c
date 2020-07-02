@@ -52,5 +52,5 @@ tTask_start(intptr_t exinf)
 {
 	CELLCB	*p_cellcb = GET_CELLCB((CELLIDX) exinf);
 
-	cBody_main();
+	cTaskBody_main();
 }

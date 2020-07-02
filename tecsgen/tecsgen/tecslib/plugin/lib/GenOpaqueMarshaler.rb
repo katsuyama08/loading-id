@@ -3,7 +3,7 @@
 #  TECS Generator
 #      Generator for TOPPERS Embedded Component System
 #  
-#   Copyright (C) 2008-2018 by TOPPERS Project
+#   Copyright (C) 2008-2020 by TOPPERS Project
 #--
 #   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
 #   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
@@ -34,7 +34,7 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 #  
-#   $Id: GenOpaqueMarshaler.rb 3064 2019-03-18 10:21:52Z okuma-top $
+#   $Id: GenOpaqueMarshaler.rb 3140 2020-03-29 09:21:42Z okuma-top $
 #++
 
 #== GenOpaqueMarshaler
@@ -294,7 +294,7 @@ module GenOpaqueMarshaler
     @substituteAllocator = {}
     @noServerChannelOpenerCode = false
     @semaphoreCelltype = :"tSemaphore"
-    @semaphoreInitializer = :"count = 1; attribute = C_EXP( \"TA_NULL\" ); ";
+    @semaphoreInitializer = :"initialCount = 1; attribute = C_EXP( \"TA_NULL\" ); ";
     @clientErrorHandler = nil
     @serverErrorHandler = nil
     @b_genOpener = false
@@ -303,6 +303,10 @@ module GenOpaqueMarshaler
     @marshaler_celltype_name = :"tOpaqueMarshaler_#{@signature.get_global_name}"
     @unmarshaler_celltype_name = :"tOpaqueUnmarshaler_#{@signature.get_global_name}"
     @marshaler_celltype_file_name = "#{$gen}/#{@marshaler_celltype_name}.cdl"
+
+    if @signature.get_context != "task" then
+      cdl_error( "OPQ9999 context of signature ($1) must be 'task'. $2 is not compatible with RPCPlugin", @signature.get_name, @signature.get_context )
+    end
 
     # signature で対応できないものをチェック
     @signature.each_param{ |func_decl, param_decl|

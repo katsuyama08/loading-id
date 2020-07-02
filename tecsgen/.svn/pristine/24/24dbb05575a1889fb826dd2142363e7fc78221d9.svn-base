@@ -1,0 +1,311 @@
+# coding: utf-8
+#
+#  TECS Generator
+#      Generator for TOPPERS Embedded Component System
+#  
+#   Copyright (C) 2019-2020 by TOPPERS Project
+#--
+#   上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
+#   ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
+#   変・再配布（以下，利用と呼ぶ）することを無償で許諾する．
+#   (1) 本ソフトウェアをソースコードの形で利用する場合には，上記の著作
+#       権表示，この利用条件および下記の無保証規定が，そのままの形でソー
+#       スコード中に含まれていること．
+#   (2) 本ソフトウェアを，ライブラリ形式など，他のソフトウェア開発に使
+#       用できる形で再配布する場合には，再配布に伴うドキュメント（利用
+#       者マニュアルなど）に，上記の著作権表示，この利用条件および下記
+#       の無保証規定を掲載すること．
+#   (3) 本ソフトウェアを，機器に組み込むなど，他のソフトウェア開発に使
+#       用できない形で再配布する場合には，次のいずれかの条件を満たすこ
+#       と．
+#     (a) 再配布に伴うドキュメント（利用者マニュアルなど）に，上記の著
+#         作権表示，この利用条件および下記の無保証規定を掲載すること．
+#     (b) 再配布の形態を，別に定める方法によって，TOPPERSプロジェクトに
+#         報告すること．
+#   (4) 本ソフトウェアの利用により直接的または間接的に生じるいかなる損
+#       害からも，上記著作権者およびTOPPERSプロジェクトを免責すること．
+#       また，本ソフトウェアのユーザまたはエンドユーザからのいかなる理
+#       由に基づく請求からも，上記著作権者およびTOPPERSプロジェクトを
+#       免責すること．
+#  
+#   本ソフトウェアは，無保証で提供されているものである．上記著作権者お
+#   よびTOPPERSプロジェクトは，本ソフトウェアに関して，特定の使用目的
+#   に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
+#   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
+#   の責任を負わない．
+#  
+#  $Id$
+#++
+
+require_tecsgen_lib "HRPKernelObjectManager.rb"
+require_tecsgen_lib "lib/FMPClassManager.rb"
+
+#
+# 各メソッドの役割りは、ClassPlugin.rb を参照のこと
+# HRPカーネル用ドメインプラグイン
+class FMPPlugin < ClassPlugin
+#@class::String: クラス名
+
+  include FMPClassManager
+  
+  def initialize( region, name, option )
+    super
+    dbgPrint "FMPPlugin: initialize: region=#{region.get_name}, className=#{name}, option=#{option}\n"
+    @region = region
+    @name   = name
+    @class = option.to_s    # class name not checked
+    res = analyze_class_name @class
+    b_analyze_ok         = res[0]
+    prc_kernel_obj       = res[2]
+    locality_kernel_obj  = res[3]
+    prc_normal_cell      = res[4]
+    locality_normal_cell = res[5]
+    if b_analyze_ok == false then
+      cdl_error( "FMP0000 $1 is not acceptable as class in TECS. acceptable are CLS_Pn_Pn, CLS_PnALL_PnALL, CLS_Pn_FLAT, CLS_PnALL_FLAT, OutOfClass (n:1..N)", @class )
+    end
+    if prc_normal_cell != "nil" && prc_kernel_obj != prc_normal_cell then
+      cdl_error( "FMP0000 processor ID mismatch $1 & $2 in $3", prc_kernel_obj, prc_normal_cell, @class)
+    end
+    @fmp3_class           = res[1]
+    dbgPrint "FMPPlugin: tecs_class=#{@class} fmp3_class=#{@fmp3_class} prc_kernel_obj=#{@prc_kernel_obj} prc_normal_cell=#{@prc_normal_cell} locality_normal_cell=#{@locality_normal_cell}\n"
+  end
+
+  def add_through_plugin( join, current_region, next_region, through_type )
+    # p "FMPPlugin: add_through_plugin"
+    # join.get_owner:Cell  左辺のセル
+    # join.get_definition:Port 呼び口
+    # join.get_subscript:Integer or nil 呼び口配列の添数 (Join::@subscript の説明参照)
+    # join.get_cell:Cell 右辺のセル
+    # join.get_port_name:Symbol 受け口
+    # get_rhs_subscript:Integer or nil 受け口配列の添数 (Join::@rhs_subscript の説明参照)
+    # return []
+    dbgPrint "FMPPlugin: add_through_plugin: #{current_region.get_name}=>#{next_region.get_name}, #{join.get_owner.get_name}.#{join.get_definition.get_name}=>#{join.get_cell.get_name}.#{join.get_port_name}, #{through_type}\n"
+
+    current_class = current_region.get_class_root.get_class_type.get_option
+    res = analyze_class_name current_class
+    caller_prc_kernel_obj       = res[2]
+    caller_locality_kernel_obj  = res[3]
+    # caller_prc_normal_cell      = res[4]
+    # caller_locality_normal_cell = res[5]
+
+    next_class = next_region.get_class_root.get_class_type.get_option
+    res = analyze_class_name next_class
+    # callee_prc_kernel_obj       = res[2]
+    # callee_locality_kernel_obj  = res[3]
+    callee_prc_normal_cell      = res[4]
+    callee_locality_normal_cell = res[5]
+
+    FMPPlugin.add_inter_class_join_set join
+    dbgPrint "FMPPlugin: Join: " + (join.get_cell.get_real_celltype(join.get_rhs_port1).get_global_name).to_s +
+             " current:" + current_class + " next:" + next_class + "\n"
+    
+    rhs_ct = join.get_cell.get_real_celltype(join.get_rhs_port1).get_global_name
+                                                                                 
+    if HRPKernelObjectManager.include_celltype?(join.
+                                                  get_cell.
+                                                  get_real_celltype(join.get_rhs_port1).
+                                                  get_global_name)                #oyama: get_name => get_global_name 
+      # 結合先がカーネルオブジェクトセル
+      # @plugin_body = HRP2SVCPlugin.new(cell_name, plugin_arg, next_cell, next_cell_port_name, signature, celltype, caller_cell)
+      # 何もしないthrough
+      dbgPrint "***** #{join.get_cell.get_celltype.get_name} is kernel object\n"
+      return []
+    elsif next_class == "OutOfClass" || callee_locality_normal_cell == "all" || callee_locality_normal_cell == "flat" then
+      #     # 結合先が OutOfClass または CLS_P1_P1ALL, CLS_P1ALL_FLAT など ALL, FLAT が指定されている
+      #     # 何もしないthrough
+      dbgPrint "**** to OutOfClass\n"
+      return []
+    # elsif current_class != next_class
+    elsif callee_locality_normal_cell == "only" && (caller_locality_kernel_obj == "all" || caller_prc_kernel_obj != callee_prc_normal_cell) then   #
+      # 別のクラスへの結合
+      dbgPrint "**** RPC\n"
+      # return [ :FMPRPCPlugin, "noClientSemaphore=false,PPAllocatorSize=256" ]
+      return [ :FMPRPCPlugin, "noClientSemaphore=false,PPAllocatorSize=256" ]
+    else
+      # その他 (結合不可：エラー)
+      # print "class_fmp3=#{res[1]} prc_kernel_obj=#{res[2]} locality_kernel_obj=#{res[3]} prc_normal_cell=#{res[4]} locality_normal_cell=#{res[5]}\n"
+      dbgPrint "**** NG\n"
+      return nil
+    end
+
+    # puts "=====Join Check End====="
+  end
+
+  def joinable?(current_region, next_region, through_type )
+    dbgPrint "FMPPlugin: joinable? from #{current_region.get_name} to #{next_region.get_name} (#{through_type})\n"
+    return true
+  end
+
+  #== ドメイン種別を返す
+  #return::Symbol :kernel, :user, :OutOfDomain
+  def get_kind
+    return @option.to_sym
+  end
+  
+  def self.gen_post_code file
+  end
+
+  # ATT_MODを生成済みかどうか                   # 2017.8.27
+  @@generate_memory_module = false
+
+  @@include_extsvc_fncd = false  # 17.07.26 暫定
+  # 
+  #  ATT_MODの生成
+  #  gen_factory実行時には，すべてのセルタイププラグインを生成済みのはずなので，
+  #  カーネルAPIコードのメモリ保護を省略できる．
+  #
+  def gen_factory node_root
+    super
+
+    if @@include_extsvc_fncd == false
+      file = AppFile.open( "#{$gen}/tecsgen.cfg" )
+      file.print "/* HRPPlugin 001 */\n"
+      file.print "#include \"extsvc_fncode.h\"\n"   ## 2017.7.26
+      file.close
+      @@include_extsvc_fncd = true
+    end
+
+    if @@generate_memory_module == false
+
+      # INCLUDE を出力
+      #  すべてのドメインに対する cfg を先に生成しておく
+      #  もし、ドメインに属するカーネルオブジェクトも、モジュールもない場合でも、cfg が出力される
+      regions = DomainType.get_domain_regions(node_root)[ :HRP ]
+      file = AppFile.open( "#{$gen}/tecsgen.cfg" )
+      file.print "/* HRPPlugin 002 */\n"
+      regions.each{ |region|
+        if ! region.is_root? then
+          nsp = "#{region.get_global_name}"
+          file2 = AppFile.open( "#{$gen}/tecsgen_#{nsp}.cfg" )
+          file2.close
+          case region.get_domain_type.get_kind
+          when :kernel
+            pre = "KERNEL_DOMAIN{\n    "
+            post = "}\n"
+          when :user
+            pre = "DOMAIN(#{region.get_name}){\n    "
+            post = "}\n"
+          when :OutOfDomain
+            pre = ""
+            post = "\n"
+          end
+          file.puts "#{pre}INCLUDE(\"#{$gen}/tecsgen_#{nsp}.cfg\");\n#{post}"
+        end
+      }
+      file.print "/* HRPPlugin 002 end */\n\n"
+      file.close
+
+      check_celltype_list = []
+
+      # 
+      #  ATT_MODの生成
+      #
+      Cell.get_cell_list2.each { |cell|
+        # すべてのセルを走査してセルタイプをチェック
+        ct = cell.get_celltype
+        if ct.class == Celltype && check_celltype_list.include?( ct ) == false
+          # チェック済みセルタイプに登録
+          check_celltype_list << ct
+
+          # 未チェックのセルタイプだった場合
+          # puts "check for ATT_MOD : #{ct.classget_global_name}"
+          # puts "check for ATT_MOD : #{ct.get_global_name}"
+
+          # カーネルAPIのコード，データはメモリ保護しない # HRP3 oyama delete by Takada's request
+          # next if HRPKernelObjectManager.include_celltype?( ct.get_name )
+
+          # 必要のないセルタイプのコード，データはメモリ保護しない
+          next if ! ct.need_generate?
+
+          # HRPのドメインリージョンを取得
+          regions = ct.get_domain_roots
+          regions_hrp = regions[ :HRP ]
+          dbgPrint "HRP domain in #{ct.get_name}: "
+          regions_hrp.each { |reg|
+            dbgPrint reg.get_name
+          }
+          # puts ""
+
+          # セル管理ブロックとスケルトンのメモリ保護
+          # gen_celltype_names_domain 相当の処理
+          if regions_hrp.include?( Region.get_root ) == false && regions_hrp.length > 1
+            # ドメインが複数で，OutOfDomainにセルが存在しないセルタイプの場合
+            # 共有のセル管理ブロックとスケルトンコードを登録する
+            file = AppFile.open( "#{$gen}/tecsgen.cfg" )
+            file.printf "%-60s/* HRPPlugin 003 */\n", "ATT_MOD(\"#{ct.get_global_name}_tecsgen.o\");"
+            file.close
+          end
+
+          regions_hrp.each { |reg|
+            if reg.is_root? 
+              nsp = ""
+            else
+              nsp = "_#{reg.get_global_name}"
+            end
+            file = AppFile.open( "#{$gen}/tecsgen#{nsp}.cfg" )
+            file.printf "%-50s/* HRPPlugin 004 */\n", "ATT_MOD(\"#{ct.get_global_name}#{nsp}_tecsgen.o\");"
+            file.close
+          }
+
+          # セルタイプコードがない場合はスキップ
+          next if ct.is_all_entry_inline? && ! ct.is_active?
+
+          # セルタイプコードのメモリ保護
+          # gen_celltype_names_domain2 相当の処理
+          if regions_hrp.include?( Region.get_root ) == true || regions_hrp.length > 1
+            # OutOfDomainにセルが存在するセルタイプの場合
+            # または，複数のドメインにセルが存在するセルタイプの場合
+            # セルタイプコードを共有するように登録する
+            file = AppFile.open( "#{$gen}/tecsgen.cfg" )
+          else
+            # OutOfDomainでない単一のドメインにセルが存在するセルタイプの場合
+            # セルタイプコードを専有するように登録する
+            file = AppFile.open( "#{$gen}/tecsgen_#{regions_hrp[0].get_global_name}.cfg" )
+          end
+
+          file.printf "%-50s/* HRPPlugin 005 */\n", "ATT_MOD(\"#{ct.get_global_name}.o\");"
+          file.close
+        else
+          # 何もしない
+        end
+      }
+
+      @@generate_memory_module = true
+    else
+      # 何もしない
+    end
+  end
+
+  #----- Inter Domain Join Set -----#
+  @@inter_class_join_set = {}      #{entry_cell =>{domain_root=>count} }  Hash of inter domain join
+  def self.add_inter_class_join_set join
+    rhs_cell = join.get_cell
+    dbgPrint "--------- add_inter_class:#{join.get_owner.get_namespace_path} => #{join.get_cell.get_namespace_path}-----\n"
+    domain_root = join.get_owner.get_region.get_domain_root   # lhs cell's domain root
+    if @@inter_class_join_set[ rhs_cell ] == nil then
+      @@inter_class_join_set[ rhs_cell ] = []
+    end
+    # 左辺のドメインルートを記録
+    @@inter_class_join_set[ rhs_cell ] << join
+  end
+  def self.get_inter_class_join_set rhs_cell
+    if @@inter_class_join_set[ rhs_cell ] then
+      @@inter_class_join_set[ rhs_cell ].uniq!
+    else
+      @@inter_class_join_set[ rhs_cell ] = []
+    end
+    return @@inter_class_join_set[ rhs_cell ]
+  end
+  def self.get_inter_class_join_roots rhs_cell
+    dbgPrint "--------- get_inter_class #{rhs_cell.get_namespace_path} -----\n"
+    domain_roots = []
+    set = get_inter_class_join_set rhs_cell
+    set.each{ |join|
+      dbgPrint "--------- get_inter_class:#{join.get_owner.get_namespace_path} => #{join.get_cell.get_namespace_path}-----\n"
+      # if join.get_owner.get_region.get_domain_root.get_domain_type.get_option == "user" then
+        domain_roots << join.get_owner.get_region.get_domain_root
+      # end
+    }
+    return domain_roots.uniq
+  end
+end
