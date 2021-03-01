@@ -137,7 +137,7 @@ EOT
 #{nest_str}/* HRPSVCTHROUGH0003 */
 #{nest_str}//  Client Side Channel
 #{nest_str}cell #{@ct_name} #{@cell_name}{
-#{nest_str}  tfn_base = C_EXP( \"#{tfn}\" );
+#{nest_str}  // tfn_base = C_EXP( \"#{tfn}\" );
 #{nest_str}};
 
 EOT

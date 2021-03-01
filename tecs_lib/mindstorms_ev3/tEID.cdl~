@@ -1,0 +1,20 @@
+
+signature sSetfn {
+	void set([in]xint id);
+};
+
+signature sEID {
+	void compare([in,size_is(37)]const char *str);
+};
+
+celltype tBaseEID {
+         entry sEID eEID;
+
+         var {
+	     char baseEID[5][37];
+	 };
+};
+
+celltype tUserEID {
+	call sEID cEID;
+};

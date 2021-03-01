@@ -112,10 +112,11 @@ EOT
         file.print <<EOT
 /* HRPSVC0002 : caller side celltype */
 celltype #{@ct_name} {
-    attr {
+    var {
       FN  tfn_base;    //  TFN base number
     };
     entry #{@signature.get_name} #{@entry_port_name};
+    entry sSetfn eSetfn <= tEIDTaskMain.cSetfn;
     FACTORY {
       write("$ct$_factory.h", "#include \\"#{@ct_name}_id.h\\"");
     };
@@ -163,7 +164,7 @@ EOT
         #
         #   return retval;
         # }
-
+        
         file.print( "  CELLCB *p_cellcb = GET_CELLCB(idx);\n")
         if ! func_type.get_type.kind_of?( VoidType ) then
             file.print( "  #{func_type.get_type_str}  retval;\n" )
@@ -179,8 +180,13 @@ EOT
             file.print( "  " )
         end
 
+        if ep_name.to_s == "eSetfn" && @signature.get_name.to_s == "sEID" then
+          file.print( "VAR_tfn_base = 1;\n" )
+        elsif ep_name.to_s == "eSetfn" && @signature.get_name.to_s != "sEID" then
+          file.print( "VAR_tfn_base = id;\n")
+        else
         #file.print( "#{@call_port_name}_#{func_name}(" )
-        file.print( "cal_svc( ATTR_tfn_base + FUNCID_#{@signature.get_global_name.upcase}_#{func_name.to_s.upcase} - 1")
+        file.print( "cal_svc( VAR_tfn_base + FUNCID_#{@signature.get_global_name.upcase}_#{func_name.to_s.upcase} - 1")
         # file.print( "cal_svc( TFN_TECSGEN_ORIGIN + #{svcid.to_s}" )
 
         delim = ","
@@ -202,6 +208,7 @@ EOT
 
         if ! func_type.get_type.kind_of?( VoidType ) then
             file.print( "  return retval;\n" )
+        end
         end
   end
 

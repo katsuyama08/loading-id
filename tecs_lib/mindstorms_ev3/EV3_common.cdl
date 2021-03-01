@@ -22,6 +22,8 @@ import(<tBalancer.cdl>);
 
 import(<tSharedMemory.cdl>);
 
+import(<tEID.cdl>);
+
 /*
  * シグニチャプラグイン MrubyBridgePlugin の呼び出し。
  */
@@ -44,13 +46,19 @@ generate( MrubyBridgePlugin, sBalancer, "" );
 
 generate( MrubyBridgePlugin, sSharedMemory, "" );
 
+generate( MrubyBridgePlugin, sEID, "" );
+
 /*
  *  サンプルプログラムの定義
  */
 //[linkunit, domain(HRP, "kernel")]
 [domain(HRP, "kernel")]
 region rKernelDomain {
-	//LCD
+        //BaseEID
+        cell tBaseEID BaseEID {
+        };
+
+        //LCD
 	cell tLCD LCD {
 		cButton = Button.eButton;
 	};
@@ -63,13 +71,26 @@ region rKernelDomain {
 region TDOM_APP {
 };
 
+generate( HRPSVCBodyCellPlugin, ::rKernelDomain::BaseEID, "exportEntryPort=eEID:TDOM_APP" );
 generate( HRPSVCBodyCellPlugin, ::rKernelDomain::LCD, "exportEntryPort=eLCD:TDOM_APP" );
 generate( HRPSVCBodyCellPlugin, ::rKernelDomain::Button, "exportEntryPort=eButton:TDOM_APP" );
 
-//[linkunit, domain(HRP, "user")]
 [node, to_through(rKernelDomain, HRPSVCThroughPlugin, "")]
 region rSample {
-	cell nMruby::tnLUM_sKernel BridgeKernel {
+	// LCD ブリッジセル
+        cell nMruby::tsLCD BridgeLCD {
+                cTECS = rKernelDomain::LCD.eLCD;
+        };
+        // Button ブリッジセル
+        cell nMruby::tsButton BridgeButton {
+                cTECS = rKernelDomain::Button.eButton;
+        };
+};
+
+//[linkunit, domain(HRP, "user")]
+[node, to_through(rKernelDomain, HRPSVCThroughPlugin, "")]
+region rUserDomain {
+       	cell nMruby::tnLUM_sKernel BridgeKernel {
 		cTECS = LUMKernel.eKernel;
 	};
 	// Motor ブリッジセル
@@ -85,17 +106,9 @@ region rSample {
 	cell nMruby::tsMotor BridgeMotorD {
 		cTECS = MotorD.eMotor;
 	};
-	// LCD ブリッジセル
-	cell nMruby::tsLCD BridgeLCD {
-		cTECS = rKernelDomain::LCD.eLCD;
-	};
 	// LED ブリッジセル
 	cell nMruby::tsLED BridgeLED {
 		cTECS = LED.eLED;
-	};
-	// Button ブリッジセル
-	cell nMruby::tsButton BridgeButton {
-		cTECS = rKernelDomain::Button.eButton;
 	};
 	// Battery ブリッジセル
 	cell nMruby::tsBattery BridgeBattery {
